@@ -102,7 +102,33 @@ repeat 55 [
     ]
 ]
 LOGO
-            )
+            ),
+            array(<<<LOGO
+to chair
+REPEAT 4  [ FD 10 RT 90 ]  FD 20
+end
+
+to star
+repeat 8 [ chair rt 45 pu fd 10 pd ]
+end
+
+pu
+rt 90
+fd 50
+lt 90
+pd
+
+
+repeat 4 [
+penup
+fd 50
+lt 90
+fd 50
+pendown
+star
+]
+LOGO
+            ),
         );
     }
     

@@ -11,6 +11,8 @@ class Turtle {
         'PENUP'   => 'PU', 
         'PENDOWN' => 'PD',
         'REPEAT'  => 'REPEAT',
+        'TO'      => 'TO',
+        'END'     => 'END',
     );
 
     protected $_commandsNeedingArguments = array(
@@ -20,6 +22,8 @@ class Turtle {
         'LT',
         'REPEAT'
     );
+    
+    protected $_userDefinedCommands = array();
     
     protected $_currentX = 100;
     protected $_currentY = 100;
@@ -77,7 +81,7 @@ class Turtle {
             if ( false !== $semiColonPosition) {
                 $value = substr($value, 0, $semiColonPosition);
             }
-
+            
             $tempInnerCommands = explode(' ', $value);
             
             foreach ($tempInnerCommands as $tempInnerCommand) {
@@ -126,10 +130,10 @@ class Turtle {
             $command = $tokens[$tokenPointer];
             $argument = null;
 
-            if (!in_array($command, $this->_commands)) {
-                $this->_error = "Invalid command: $command";
-                return;
-            }
+            #if (!in_array($command, $this->_commands)) {
+            #    $this->_error = "Invalid command: $command";
+            #    return;
+            #}
 
             if (in_array($command, $this->_commandsNeedingArguments)) {
                 $tokenPointer++;
@@ -151,10 +155,12 @@ class Turtle {
                 case 'LT':
                     $this->_currentAngle -= $argument;
                     break;
-                case 'PENDOWN':
+                case 'PD':
+                    $commandIsDrawable = false;
                     $this->_isPenDown = true;
                     break;
-                case 'PENUP':
+                case 'PU':
+                    $commandIsDrawable = false;
                     $this->_isPenDown = false;
                     break;
                 case 'REPEAT':
@@ -195,7 +201,49 @@ class Turtle {
                     }
                     
                     break;
+                case 'TO':
+                    $commandIsDrawable = false;
+                    $tokenPointer++;
+                    
+                    $functionName = $tokens[$tokenPointer];
+                    if (in_array($functionName, $this->_commands)) {
+                        $this->_error = "$functionName is a reserved word, and cannot be used as a function name.";
+                        return;
+                    }
+                    
+                    $tokenPointer++;
+                    $startingPoint = $tokenPointer;
+                    
+                    $foundEnd = false;
+                    while ($tokenPointer < sizeof($tokens) && !$foundEnd) {
+                        if ( 'END' === $tokens[$tokenPointer] ) {
+                            $this->_userDefinedCommands[$functionName] = array_slice(
+                                $tokens,
+                                $startingPoint,
+                                $tokenPointer - $startingPoint
+                            );
+                            $foundEnd = true;
+                            continue;
+                        }
+                        
+                        $tokenPointer++;
+                    }
+                    
+                    if (!$foundEnd) {
+                        $this->_error = "Could not find end of function for $functionName";
+                        return;
+                    }
+                
+                    break;
                 default:
+                    if (array_key_exists($command, $this->_userDefinedCommands)) {
+                        $this->_parseTokens(
+                            $this->_userDefinedCommands[$command]
+                        );
+                    } else {
+                        $this->_error = "$command is undefined.";
+                        return;
+                    }
             }
 
             // now, lets draw a line
