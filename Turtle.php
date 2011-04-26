@@ -82,6 +82,9 @@ class Turtle {
                 $value = substr($value, 0, $semiColonPosition);
             }
             
+            $value = str_replace('[', ' [ ', $value);
+            $value = str_replace(']', ' ] ', $value);
+
             $tempInnerCommands = explode(' ', $value);
             
             foreach ($tempInnerCommands as $tempInnerCommand) {
