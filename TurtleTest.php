@@ -93,6 +93,16 @@ right 60
 forward 70
 LOGO
             ),
+            array (<<<LOGO
+repeat 55 [ 
+    rt 15 
+    repeat 8 [ 
+        fd 30 
+        rt 45
+    ]
+]
+LOGO
+            )
         );
     }
     

@@ -10,13 +10,15 @@ class Turtle {
         'LEFT'    => 'LT', 
         'PENUP'   => 'PENUP', 
         'PENDOWN' => 'PENDOWN',
+        'REPEAT'  => 'REPEAT',
     );
 
     protected $_commandsNeedingArguments = array(
-        'FD', 
-        'BK', 
-        'RT', 
-        'LT', 
+        'FD',
+        'BK',
+        'RT',
+        'LT',
+        'REPEAT'
     );
     
     protected $_currentX = 100;
@@ -107,12 +109,15 @@ class Turtle {
         $temp = implode(' ', $commands);
         // and then finally tokenise everything into one long sequential array
         $tokens = explode(' ', $temp);
-    
+        
         return $tokens;
     }
 
     public function _parseTokens($tokens) {
         $this->_error = false;
+        $newX = $this->_currentX;
+        $newY = $this->_currentY;
+        $commandIsDrawable = true;
         
         // now, lets start doing something with these tokens
         $tokenPointer = 0;
@@ -153,12 +158,47 @@ class Turtle {
                     $this->_isPenDown = false;
                     break;
                 case 'REPEAT':
+                    $commandIsDrawable = false;
+                    $tokenPointer++;
+                    if ('[' !== $tokens[$tokenPointer]) {
+                        $this->_error = "REPEAT must be followed by a number, then an opening square bracket";
+                        return;
+                    }
+                    
+                    $tokenPointer++;
+                    $startingPoint = $tokenPointer;
+                    
+                    $openBrackets = 1;
+                    // now start looking for the closing bracket to go with this opening one
+                    while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
+                        if ( '[' === $tokens[$tokenPointer] ) {
+                            $openBrackets++;
+                        } else if ( ']' === $tokens[$tokenPointer] ) {
+                            $openBrackets--;
+                        }
+                        
+                        if ( 0 === $openBrackets) {
+                            for ($i=0; $i < $argument; $i++) {
+                                $this->_parseTokens(
+                                    array_slice(
+                                        $tokens,
+                                        $startingPoint,
+                                        $tokenPointer - $startingPoint
+                                    )
+                                );
+                            }
+                        }
+                        
+                        
+                        $tokenPointer++;
+                    }
+                    
                     break;
                 default:
             }
 
             // now, lets draw a line
-            if ($this->_isPenDown) {
+            if ($this->_isPenDown && $commandIsDrawable) {
                 imageline(
                     $this->_image, 
                     $this->_currentX, $this->_currentY,
