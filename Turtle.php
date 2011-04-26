@@ -8,8 +8,8 @@ class Turtle {
         'BACK'    => 'BK', 
         'RIGHT'   => 'RT', 
         'LEFT'    => 'LT', 
-        'PENUP'   => 'PENUP', 
-        'PENDOWN' => 'PENDOWN',
+        'PENUP'   => 'PU', 
+        'PENDOWN' => 'PD',
         'REPEAT'  => 'REPEAT',
     );
 
@@ -115,13 +115,13 @@ class Turtle {
 
     public function _parseTokens($tokens) {
         $this->_error = false;
-        $newX = $this->_currentX;
-        $newY = $this->_currentY;
-        $commandIsDrawable = true;
         
         // now, lets start doing something with these tokens
         $tokenPointer = 0;
         while ($tokenPointer < sizeof($tokens)) {
+            $newX = $this->_currentX;
+            $newY = $this->_currentY;
+            $commandIsDrawable = true;
 
             $command = $tokens[$tokenPointer];
             $argument = null;
@@ -187,6 +187,7 @@ class Turtle {
                                     )
                                 );
                             }
+                            continue;
                         }
                         
                         
