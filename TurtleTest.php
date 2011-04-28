@@ -20,8 +20,11 @@ class TurtleTest extends PHPUnit_Framework_TestCase
     public function testValidCommandsCreateExpectedImage($input, $expected) {
         $turtle = new Turtle($input);
         
-        $expectedFilename = str_replace(' ', '-', $expected);
+        $expectedFilename = ( '' === $expected )
+                          ? 'empty-output'
+                          : str_replace(' ', '-', $expected);
         $expectedFilename = "test-images/$expectedFilename.png";
+        
         if (!file_exists($expectedFilename)) {
             $this->markTestSkipped(
                 "No test image available for: $expected"
@@ -179,6 +182,10 @@ LOGO
 BK 5
 LOGO
                 , "BK 5"
+            ),
+            array(
+                '; a comment on its own',
+                ''
             ),
         );
     }

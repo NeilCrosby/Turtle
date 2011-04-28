@@ -117,6 +117,9 @@ class Turtle {
         // and then finally tokenise everything into one long sequential array
         $tokens = explode(' ', $temp);
         
+        // and finally finally get rid of any blank lines left by the trimming procedure
+        $tokens = array_filter($tokens);
+
         return $tokens;
     }
 
