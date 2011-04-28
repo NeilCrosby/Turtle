@@ -5,18 +5,40 @@ require_once 'Turtle.php';
 
 class TurtleTest extends PHPUnit_Framework_TestCase
 {
+    
     /**
      * @dataProvider validCommandProvider
      **/
-    public function testValidCommandsResultInNoError($input) {
+    public function testValidCommandsResultInNoError($input, $expected) {
         $turtle = new Turtle($input);
         $this->assertFalse($turtle->getError());
     }
     
     /**
+     * @dataProvider validCommandProvider
+     **/
+    public function testValidCommandsCreateExpectedImage($input, $expected) {
+        $turtle = new Turtle($input);
+        
+        $expectedFilename = str_replace(' ', '-', $expected);
+        $expectedFilename = "test-images/$expectedFilename.png";
+        if (!file_exists($expectedFilename)) {
+            $this->markTestSkipped(
+                "No test image available for: $expected"
+            );
+        }
+        
+        $this->assertEquals(
+            file_get_contents($expectedFilename),
+            $turtle->getImage(),
+            "Generated image does not match expected image."
+        );
+    }
+    
+    /**
      * @dataProvider invalidCommandProvider
      **/
-    public function testInvalidCommandsResultInError() {
+    public function testInvalidCommandsResultInError($input) {
         $turtle = new Turtle($input);
         $this->assertType('string', $turtle->getError());
     }
@@ -32,7 +54,7 @@ class TurtleTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider validMultiLineCommandsProvider
      **/
-    public function testCommandsAreNormalisedToASingleLine($input) {
+    public function testCommandsAreNormalisedToASingleLine($input, $expected) {
         $turtle = new Turtle($input);
 
         $this->assertFalse(
@@ -48,32 +70,35 @@ class TurtleTest extends PHPUnit_Framework_TestCase
     public function validCommandProvider() {
         return array_merge(
             $this->validSingleLineCommandsProvider(),
-            $this->validMultiLineCommandsProvider()
+            $this->validMultiLineCommandsProvider(),
+            $this->validCommandsWithCommentsProvider()
         );
     }
     
     public function validSingleLineCommandsProvider() {
         return array(
-            array("forward 27"),
-            array("back 70"),
-            array("left 45"),
-            array("right 90"),
-            array("fd 70"),
-            array("bk 75"),
-            array("lt 24"),
-            array("rt 9"),
-            array("FORWARD 27"),
-            array("BACK 70"),
-            array("LEFT 45"),
-            array("RIGHT 90"),
-            array("FD 70"),
-            array("BK 75"),
-            array("LT 24"),
-            array("RT 9"),
-            array("penup"),
-            array("pendown"),
-            array("PENUP"),
-            array("PENDOWN"),
+            array("forward 27", 'FD 27'),
+            array("back 70", 'BK 70'),
+            array("left 45", 'LT 45'),
+            array("right 90", 'RT 90'),
+            array("fd 70", 'FD 70'),
+            array("bk 75", 'BK 75'),
+            array("lt 24", 'LT 24'),
+            array("rt 9", 'RT 9'),
+            array("FORWARD 27", 'FD 27'),
+            array("BACK 70", 'BK 70'),
+            array("LEFT 45", 'LT 45'),
+            array("RIGHT 90", 'RT 90'),
+            array("FD 70", 'FD 70'),
+            array("BK 75", 'BK 75'),
+            array("LT 24", 'LT 24'),
+            array("RT 9", 'RT 9'),
+            array("penup", 'PU'),
+            array("pendown", 'PD'),
+            array("PENUP", 'PU'),
+            array("PENDOWN", 'PD'),
+            array('pu', 'PU'),
+            array('pd', 'PD'),
         );
     }
     
@@ -92,7 +117,7 @@ forward 25
 right 60 
 forward 70
 LOGO
-            ),
+                , 'FD 50 RT 90 FD 50 RT 90 FD 20 PU FD 25 PD FD 25 RT 60 FD 70'),
             array (<<<LOGO
 repeat 55 [ 
     rt 15 
@@ -102,6 +127,7 @@ repeat 55 [
     ]
 ]
 LOGO
+                , 'REPEAT 55 [ RT 15 REPEAT 8 [ FD 30 RT 45 ] ]'
             ),
             array(<<<LOGO
 to chair
@@ -128,6 +154,7 @@ pendown
 star
 ]
 LOGO
+                , 'TO CHAIR REPEAT 4 [ FD 10 RT 90 ] FD 20 END TO STAR REPEAT 8 [ CHAIR RT 45 PU FD 10 PD ] END PU RT 90 FD 50 LT 90 PD REPEAT 4 [ PU FD 50 LT 90 FD 50 PD STAR ]'
             ),
         );
     }
@@ -143,12 +170,15 @@ LOGO
                 "FD 70"
             ),
             array(
-                "; another comment",
-                ""
-            ),
-            array(
                 "BK 5;PENUP",
                 "BK 5"
+            ),
+            array(
+                <<<LOGO
+; another comment
+BK 5
+LOGO
+                , "BK 5"
             ),
         );
     }
