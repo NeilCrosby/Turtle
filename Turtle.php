@@ -36,7 +36,7 @@ class Turtle {
     
     protected $_error = false;
 
-    public function __construct($input, $width=500, $height=500) {
+    public function __construct($input, $width=200, $height=200) {
         $this->_tokens = $this->_getTokens($input);
         
         $this->_width = $width;
@@ -149,6 +149,7 @@ class Turtle {
                     $newY = $this->_currentY + sin(deg2rad($this->_currentAngle)) * $argument;
                     break;
                 case 'RT':
+                    $commandIsDrawable = false;
                     $this->_currentAngle += $argument;
                     break;
                 case 'BK':
@@ -156,6 +157,7 @@ class Turtle {
                     $newY = $this->_currentY - sin(deg2rad($this->_currentAngle)) * $argument;
                     break;
                 case 'LT':
+                    $commandIsDrawable = false;
                     $this->_currentAngle -= $argument;
                     break;
                 case 'PD':
