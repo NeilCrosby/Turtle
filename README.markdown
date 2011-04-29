@@ -130,3 +130,12 @@ Variables can also be made from other variables:
     MAKE "x :y ; x will take the value of y
     RT :x      ; rotate the turtle right 60 degrees
     FD 50
+
+### SUM _number_ _number_
+
+Sums two values together
+
+    MAKE "x 60
+    MAKE "y 30
+    MAKE "z SUM :x :y ; z becomes 90
+    MAKE "z SUM 60 -40 ; z becomes 20

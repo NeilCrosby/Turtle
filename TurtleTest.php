@@ -231,7 +231,33 @@ RT :x
 FD 25
 LOGO
                 , 'BK 5 MAKE "X "45 RT :X FD 25'
-            )
+            ),
+            array(
+                <<<LOGO
+MAKE "x sum 20 70
+RT :x
+FD 25
+rt 90
+fd sum 15 20
+LOGO
+                , 'MAKE "X SUM 20 70 RT :X FD 25 RT 90 FD SUM 15 20'
+            ),
+            array(
+                <<<LOGO
+to spiral :size :angle
+    forward :size
+    right :angle
+end
+
+make "size 5
+make "angle 91
+repeat 50 [ 
+    spiral :size :angle 
+    make "size sum :size 2 
+]
+LOGO
+                , 'TO SPIRAL :SIZE :ANGLE FD :SIZE RT :ANGLE END MAKE "SIZE 5 MAKE "ANGLE 91 REPEAT 50 [ SPIRAL :SIZE :ANGLE MAKE "SIZE SUM :SIZE 2 ]'
+            ),
         );
     }
     

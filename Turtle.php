@@ -108,7 +108,7 @@ class Turtle {
         }
 
         // get rid of any blank lines left by the  trimming procedure
-        $commands = array_filter($commands);
+        $commands = array_filter($commands, array('self', 'reductionCallback'));
 
         // join all the commands into one long space separated string
         $temp = implode(' ', $commands);
@@ -116,28 +116,20 @@ class Turtle {
         $tokens = explode(' ', $temp);
         
         // and finally finally get rid of any blank lines left by the trimming procedure
-        $tokens = array_filter($tokens);
+        $tokens = array_filter($tokens, array('self', 'reductionCallback'));
 
         return $tokens;
     }
+    
+    public function reductionCallback($input) {
+        if ( 0 === $input || '0' === $input) {
+            return true;
+        }
+        
+        return (bool)$input;
+    } 
 
-    public function _parseTokens($input) {
-        $tokens = $input;
-        $expectedVariables = array();
-        $passedInVariables = array();
-        
-        if (array_key_exists('commands', $input)) {
-            $tokens = $input['commands'];
-        }
-        
-        if (array_key_exists('expectedVariables', $input)) {
-            $expectedVariables = $input['expectedVariables'];
-        }
-        
-        if (array_key_exists('passedInVariables', $input)) {
-            $passedInVariables = $input['passedInVariables'];
-        }
-        
+    public function _parseTokens($tokens, $passedInVariables=array(), $expectedVariables=array()) {
         // now, lets start doing something with these tokens
         $tokenPointer = 0;
         while ($tokenPointer < sizeof($tokens)) {
@@ -150,11 +142,7 @@ class Turtle {
 
             if (in_array($command, $this->_commandsNeedingArguments)) {
                 $tokenPointer++;
-                $argument = $tokens[$tokenPointer];
-                
-                if ( ':' === substr($argument, 0, 1) ) {
-                    $argument = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
-                }
+                $argument = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
             }
 
             switch ($command) {
@@ -220,10 +208,8 @@ class Turtle {
                                 );
 
                                 $this->_parseTokens(
-                                    array(
-                                        'commands' => $commands,
-                                        'passedInVariables' => $passedInVariables,
-                                    )
+                                    $commands,
+                                    &$passedInVariables
                                 );
                             }
                             continue;
@@ -285,7 +271,7 @@ class Turtle {
                 case 'MAKE':
                     $commandIsDrawable = false;
 
-                    if ( '"' !== substr($argument, 0, 1) ) {
+                    if ( '"' !== substr($tokens[$tokenPointer], 0, 1) ) {
                         throw new Exception("MAKE requires its first parameter to be a named variable");
                         return;
                     }
@@ -299,20 +285,20 @@ class Turtle {
                     break;
                 default:
                     if (array_key_exists($command, $this->_userDefinedCommands)) {
+                        $commandIsDrawable = false;
                         $variables = array();
                         foreach ($this->_userDefinedCommands[$command]['expectedVariables'] as $expectedVariable) {
                             $tokenPointer++;
-                            $variables[$expectedVariable] = $tokens[$tokenPointer];
+                            $variables[$expectedVariable] = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
                         }
                         
                         $this->_parseTokens(
-                            array_merge(
-                                $this->_userDefinedCommands[$command],
-                                array(
-                                    'passedInVariables' => $variables
-                                )
-                            )
+                            $this->_userDefinedCommands[$command]['commands'],
+                            $variables,
+                            $this->_userDefinedCommands[$command]['expectedVariables']
                         );
+                        $newX = $this->_currentX;
+                        $newY = $this->_currentY;
                     } else {
                         throw new Exception("$command is undefined.");
                     }
@@ -361,6 +347,19 @@ class Turtle {
             }
             
             throw new Exception('Unknown variable: '.$variableName);
+        }
+        
+        switch ($token) {
+            case 'SUM':
+                $tokenPointer++;
+                $item1 = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                $tokenPointer++;
+                $item2 = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                
+                return $item1 + $item2;
+                break;
+            default:
+                // do nothing
         }
         
         return $tokens[$tokenPointer];
