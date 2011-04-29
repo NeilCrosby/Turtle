@@ -22,7 +22,7 @@ class Turtle {
         'RT',
         'LT',
         'REPEAT',
-        'SETC'
+        'SETC',
     );
     
     protected $_userDefinedCommands = array();
@@ -36,8 +36,6 @@ class Turtle {
     protected $_image;
     protected $_color;
     
-    protected $_error = false;
-
     public function __construct($input, $width=200, $height=200) {
         $this->_tokens = $this->_getTokens($input);
         
@@ -66,10 +64,6 @@ class Turtle {
     
     public function getNormalisedTokens() {
         return implode(' ', $this->_tokens);
-    }
-    
-    public function getError() {
-        return $this->_error;
     }
     
     protected function _getTokens($input) {
@@ -142,8 +136,6 @@ class Turtle {
             $passedInVariables = $input['passedInVariables'];
         }
         
-        $this->_error = false;
-        
         // now, lets start doing something with these tokens
         $tokenPointer = 0;
         while ($tokenPointer < sizeof($tokens)) {
@@ -158,11 +150,11 @@ class Turtle {
                 $tokenPointer++;
                 $argument = $tokens[$tokenPointer];
                 if ( ':' === substr($argument, 0, 1) ) {
+                    $argument = substr($argument, 1);
                     if (array_key_exists($argument, $passedInVariables)) {
                         $argument = $passedInVariables[$argument];
                     } else {
-                        $this->_error = "No variable with name $argument has been defined.";
-                        return;
+                        throw new Exception("No variable with name $argument has been defined.");
                     }
                 }
             }
@@ -206,8 +198,7 @@ class Turtle {
                     $commandIsDrawable = false;
                     $tokenPointer++;
                     if ('[' !== $tokens[$tokenPointer]) {
-                        $this->_error = "REPEAT must be followed by a number, then an opening square bracket";
-                        return;
+                        throw new Exception("REPEAT must be followed by a number, then an opening square bracket");
                     }
                     
                     $tokenPointer++;
@@ -251,8 +242,7 @@ class Turtle {
                     
                     $functionName = $tokens[$tokenPointer];
                     if (in_array($functionName, $this->_commands)) {
-                        $this->_error = "$functionName is a reserved word, and cannot be used as a function name.";
-                        return;
+                        throw new Exception("$functionName is a reserved word, and cannot be used as a function name.");
                     }
                     
                     $tokenPointer++;
@@ -261,7 +251,7 @@ class Turtle {
                     // procedure
                     $variables = array();
                     while($tokenPointer < sizeof($tokens) && ':' === substr($tokens[$tokenPointer], 0, 1)) {
-                        $variables[] = $tokens[$tokenPointer];
+                        $variables[] = substr($tokens[$tokenPointer], 1);
                         $tokenPointer++;
                     }
                     
@@ -288,7 +278,7 @@ class Turtle {
                     }
                     
                     if (!$foundEnd) {
-                        $this->_error = "Could not find end of function for $functionName";
+                        throw new Exception("Could not find end of function for $functionName");
                         return;
                     }
                 
@@ -310,8 +300,7 @@ class Turtle {
                             )
                         );
                     } else {
-                        $this->_error = "$command is undefined.";
-                        return;
+                        throw new Exception("$command is undefined.");
                     }
             }
 

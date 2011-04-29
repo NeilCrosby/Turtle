@@ -11,7 +11,6 @@ class TurtleTest extends PHPUnit_Framework_TestCase
      **/
     public function testValidCommandsResultInNoError($input, $expected) {
         $turtle = new Turtle($input);
-        $this->assertFalse($turtle->getError());
     }
     
     /**
@@ -40,10 +39,10 @@ class TurtleTest extends PHPUnit_Framework_TestCase
     
     /**
      * @dataProvider invalidCommandProvider
+     * @expectedException Exception
      **/
-    public function testInvalidCommandsResultInError($input) {
+    public function testInvalidCommandsResultInException($input) {
         $turtle = new Turtle($input);
-        $this->assertType('string', $turtle->getError());
     }
     
     /**

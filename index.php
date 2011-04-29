@@ -4,7 +4,12 @@ require_once('Turtle.php');
 
 $commands = (isset($_POST['commands'])) ? $_POST['commands'] : '';
 
-$turtle = new Turtle($commands);
+$error = false;
+try {
+    $turtle = new Turtle($commands);
+} catch (Exception $e) {
+    $error = $e->getMessage();
+}
 
 ?><!DOCTYPE html>
 <html lang="en">
@@ -22,10 +27,18 @@ $turtle = new Turtle($commands);
                 <input type="submit">
             </p>
         </form>
-        <p>
-            <img src="image.php?commands=<?= urlencode($turtle->getNormalisedTokens()); ?>">
-        </p>
-        <p>Normalised commands: <?= $turtle->getNormalisedTokens(); ?></p>
-        <p>Error: <?= $turtle->getError(); ?></p>
+        
+        <? if ($error): ?>
+
+            <p>Error: <?= $error; ?></p>
+
+        <? else: ?>
+
+            <p>
+                <img src="image.php?commands=<?= urlencode($turtle->getNormalisedTokens()); ?>">
+            </p>
+            <p>Normalised commands: <?= $turtle->getNormalisedTokens(); ?></p>
+
+        <? endif; ?>
     </body>
 </html>
