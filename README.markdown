@@ -115,5 +115,18 @@ A procedure may also take variables. If we wanted our `hexagon` procedure to tak
         hexagon 30 255,0,0 
         RT 15 
     ]
+    
+### MAKE "_variable-name_ _word_
 
+Use the `MAKE` command to create a variable. For example:
 
+    MAKE "x 45 ; set x to 45
+    LT :x      ; rotate the turtle left 45 degrees
+    FD 50
+    
+Variables can also be made from other variables:
+
+    MAKE "y 60 ; set y to 60
+    MAKE "x :y ; x will take the value of y
+    RT :x      ; rotate the turtle right 60 degrees
+    FD 50
