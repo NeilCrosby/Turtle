@@ -211,6 +211,8 @@ class Turtle {
                                     $commands,
                                     &$passedInVariables
                                 );
+                                $newX = $this->_currentX;
+                                $newY = $this->_currentY;
                             }
                             continue;
                         }

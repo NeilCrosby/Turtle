@@ -258,6 +258,17 @@ repeat 50 [
 LOGO
                 , 'TO SPIRAL :SIZE :ANGLE FD :SIZE RT :ANGLE END MAKE "SIZE 5 MAKE "ANGLE 91 REPEAT 50 [ SPIRAL :SIZE :ANGLE MAKE "SIZE SUM :SIZE 2 ]'
             ),
+            array(
+                <<<LOGO
+repeat 4 [
+    repeat 3 [
+        fd 20
+        rt 30
+    ]
+]
+LOGO
+                , 'REPEAT 4 [ REPEAT 3 [ FD 20 RT 30 ] ]'
+            )
         );
     }
     
