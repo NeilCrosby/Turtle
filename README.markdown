@@ -74,16 +74,21 @@ The following will create a simple hexagon twelve times, with a 30 degree rotati
 
 Creates a procedure, which can be called by name from later places within your script.
 
-Taking our hexagon example:
+Taking our hexagon example (and adding in a bit of colour swapping for good measure):
 
     TO hexagon
-        REPEAT 6 [ FD 50 RT 60 ]
-    END
+            REPEAT 6 [ FD 50 RT 60 ]
+        END
     
-    REPEAT 24 [ 
-        hexagon 
-        RT 15
+
+    REPEAT 12 [ 
+        SETC 0,127,0
+        hexagon RT 15 
+        SETC 255,0,0
+        hexagon RT 15 
     ]
-    
+
+
+
 
 

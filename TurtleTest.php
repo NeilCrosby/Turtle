@@ -169,6 +169,22 @@ forward 20
 LOGO
                 , 'FD 20 SETC 127 FD 20 SETC 0,255,0 FD 20'
             ),
+            array(
+                <<<LOGO
+                TO hexagon
+                        REPEAT 6 [ FD 50 RT 60 ]
+                    END
+
+
+                REPEAT 12 [ 
+                    SETC 0,127,0
+                    hexagon RT 15 
+                    SETC 255,0,0
+                    hexagon RT 15 
+                ]
+LOGO
+                , 'TO HEXAGON REPEAT 6 [ FD 50 RT 60 ] END REPEAT 12 [ SETC 0,127,0 HEXAGON RT 15 SETC 255,0,0 HEXAGON RT 15 ]'
+            )
         );
     }
     
