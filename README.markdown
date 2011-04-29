@@ -46,6 +46,21 @@ Lowers the turtle's pen. When the turtle's pen is down, it will draw on the canv
 
     PD
 
+### ; _comment_
+
+    A semicolon is used by Logo to denote a comment.  Anything after the semicolon on a line is treated as if it did not exist by the parser.
+
+        FD 50 ; a comment
+        LT 90
+        ; another comment
+        FD 45
+
+    The previous code would be parsed as:
+
+        FD 50
+        LT 90
+        FD 45
+
 ### SETCOLOR (SETC) _number or comma separated numbers_
 
 Sets the color of the pen.  The numbers available to be used are 0-255. If a single number is given, then the pen color will vary between black (0) and bright red (255). If three comma separated numbers are given, then any RGB color can be defined.
