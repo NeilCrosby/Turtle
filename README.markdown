@@ -48,18 +48,18 @@ Lowers the turtle's pen. When the turtle's pen is down, it will draw on the canv
 
 ### ; _comment_
 
-    A semicolon is used by Logo to denote a comment.  Anything after the semicolon on a line is treated as if it did not exist by the parser.
+A semicolon is used by Logo to denote a comment.  Anything after the semicolon on a line is treated as if it did not exist by the parser.
 
-        FD 50 ; a comment
-        LT 90
-        ; another comment
-        FD 45
+    FD 50 ; a comment
+    LT 90
+    ; another comment
+    FD 45
 
-    The previous code would be parsed as:
+The previous code would be parsed as:
 
-        FD 50
-        LT 90
-        FD 45
+    FD 50
+    LT 90
+    FD 45
 
 ### SETCOLOR (SETC) _number or comma separated numbers_
 
