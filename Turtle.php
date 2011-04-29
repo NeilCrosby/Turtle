@@ -13,6 +13,7 @@ class Turtle {
         'REPEAT'  => 'REPEAT',
         'TO'      => 'TO',
         'END'     => 'END',
+        'SETCOLOR'=> 'SETC',
     );
 
     protected $_commandsNeedingArguments = array(
@@ -20,7 +21,8 @@ class Turtle {
         'BK',
         'RT',
         'LT',
-        'REPEAT'
+        'REPEAT',
+        'SETC'
     );
     
     protected $_userDefinedCommands = array();
@@ -170,6 +172,16 @@ class Turtle {
                 case 'PU':
                     $commandIsDrawable = false;
                     $this->_isPenDown = false;
+                    break;
+                case 'SETC':
+                    $commandIsDrawable = false;
+                    
+                    $colors = explode(',', $argument);
+                    $colors = array_pad($colors, 3, 0);
+                    $this->_color = imagecolorallocate(
+                        $this->_image, 
+                        $colors[0], $colors[1], $colors[2]
+                    );
                     break;
                 case 'REPEAT':
                     $commandIsDrawable = false;

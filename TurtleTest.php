@@ -159,6 +159,16 @@ star
 LOGO
                 , 'TO CHAIR REPEAT 4 [ FD 10 RT 90 ] FD 20 END TO STAR REPEAT 8 [ CHAIR RT 45 PU FD 10 PD ] END PU RT 90 FD 50 LT 90 PD REPEAT 4 [ PU FD 50 LT 90 FD 50 PD STAR ]'
             ),
+            array(
+                <<<LOGO
+forward 20
+setc 127
+forward 20
+setc 0,255,0
+forward 20
+LOGO
+                , 'FD 20 SETC 127 FD 20 SETC 0,255,0 FD 20'
+            ),
         );
     }
     
