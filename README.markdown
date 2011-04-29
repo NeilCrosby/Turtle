@@ -44,6 +44,8 @@ Lifts the turtle's pen. Nothing new will be drawn on the canvas until `PENDOWN` 
 
 Lowers the turtle's pen. When the turtle's pen is down, it will draw on the canvas.
 
+    PD
+
 ### SETCOLOR (SETC) _number or comma separated numbers_
 
 Sets the color of the pen.  The numbers available to be used are 0-255. If a single number is given, then the pen color will vary between black (0) and bright red (255). If three comma separated numbers are given, then any RGB color can be defined.
