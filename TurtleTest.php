@@ -22,7 +22,7 @@ class TurtleTest extends PHPUnit_Framework_TestCase
         
         $expectedFilename = ( '' === $expected )
                           ? 'empty-output'
-                          : str_replace(' ', '-', $expected);
+                          : str_replace(array(' ', ':'), '-', $expected);
         $expectedFilename = "test-images/$expectedFilename.png";
         
         if (!file_exists($expectedFilename)) {
@@ -184,6 +184,22 @@ LOGO
                 ]
 LOGO
                 , 'TO HEXAGON REPEAT 6 [ FD 50 RT 60 ] END REPEAT 12 [ SETC 0,127,0 HEXAGON RT 15 SETC 255,0,0 HEXAGON RT 15 ]'
+            ),
+            array(
+                <<<LOGO
+TO hexagon :size :color
+    SETC :color
+    REPEAT 6 [ FD :size RT 60 ]
+END
+
+REPEAT 12 [ 
+    hexagon 50 0,127,0 
+    RT 15 
+    hexagon 30 255,0,0 
+    RT 15 
+]
+LOGO
+                , 'TO HEXAGON :SIZE :COLOR SETC :COLOR REPEAT 6 [ FD :SIZE RT 60 ] END REPEAT 12 [ HEXAGON 50 0,127,0 RT 15 HEXAGON 30 255,0,0 RT 15 ]'
             )
         );
     }

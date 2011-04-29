@@ -125,7 +125,23 @@ class Turtle {
         return $tokens;
     }
 
-    public function _parseTokens($tokens) {
+    public function _parseTokens($input) {
+        $tokens = $input;
+        $expectedVariables = array();
+        $passedInVariables = array();
+        
+        if (array_key_exists('commands', $input)) {
+            $tokens = $input['commands'];
+        }
+        
+        if (array_key_exists('expectedVariables', $input)) {
+            $expectedVariables = $input['expectedVariables'];
+        }
+        
+        if (array_key_exists('passedInVariables', $input)) {
+            $passedInVariables = $input['passedInVariables'];
+        }
+        
         $this->_error = false;
         
         // now, lets start doing something with these tokens
@@ -138,14 +154,17 @@ class Turtle {
             $command = $tokens[$tokenPointer];
             $argument = null;
 
-            #if (!in_array($command, $this->_commands)) {
-            #    $this->_error = "Invalid command: $command";
-            #    return;
-            #}
-
             if (in_array($command, $this->_commandsNeedingArguments)) {
                 $tokenPointer++;
                 $argument = $tokens[$tokenPointer];
+                if ( ':' === substr($argument, 0, 1) ) {
+                    if (array_key_exists($argument, $passedInVariables)) {
+                        $argument = $passedInVariables[$argument];
+                    } else {
+                        $this->_error = "No variable with name $argument has been defined.";
+                        return;
+                    }
+                }
             }
 
             switch ($command) {
@@ -205,11 +224,16 @@ class Turtle {
                         
                         if ( 0 === $openBrackets) {
                             for ($i=0; $i < $argument; $i++) {
+                                $commands = array_slice(
+                                    $tokens,
+                                    $startingPoint,
+                                    $tokenPointer - $startingPoint
+                                );
+
                                 $this->_parseTokens(
-                                    array_slice(
-                                        $tokens,
-                                        $startingPoint,
-                                        $tokenPointer - $startingPoint
+                                    array(
+                                        'commands' => $commands,
+                                        'passedInVariables' => $passedInVariables,
                                     )
                                 );
                             }
@@ -232,15 +256,29 @@ class Turtle {
                     }
                     
                     $tokenPointer++;
+
+                    // now, find any variables that want to be passed into the
+                    // procedure
+                    $variables = array();
+                    while($tokenPointer < sizeof($tokens) && ':' === substr($tokens[$tokenPointer], 0, 1)) {
+                        $variables[] = $tokens[$tokenPointer];
+                        $tokenPointer++;
+                    }
+                    
                     $startingPoint = $tokenPointer;
                     
                     $foundEnd = false;
                     while ($tokenPointer < sizeof($tokens) && !$foundEnd) {
                         if ( 'END' === $tokens[$tokenPointer] ) {
-                            $this->_userDefinedCommands[$functionName] = array_slice(
+                            $commands = array_slice(
                                 $tokens,
                                 $startingPoint,
                                 $tokenPointer - $startingPoint
+                            );
+                            
+                            $this->_userDefinedCommands[$functionName] = array(
+                                'expectedVariables' => $variables,
+                                'commands'  => $commands,
                             );
                             $foundEnd = true;
                             continue;
@@ -257,8 +295,19 @@ class Turtle {
                     break;
                 default:
                     if (array_key_exists($command, $this->_userDefinedCommands)) {
+                        $variables = array();
+                        foreach ($this->_userDefinedCommands[$command]['expectedVariables'] as $expectedVariable) {
+                            $tokenPointer++;
+                            $variables[$expectedVariable] = $tokens[$tokenPointer];
+                        }
+                        
                         $this->_parseTokens(
-                            $this->_userDefinedCommands[$command]
+                            array_merge(
+                                $this->_userDefinedCommands[$command],
+                                array(
+                                    'passedInVariables' => $variables
+                                )
+                            )
                         );
                     } else {
                         $this->_error = "$command is undefined.";

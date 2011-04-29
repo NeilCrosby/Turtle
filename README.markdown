@@ -92,9 +92,8 @@ Creates a procedure, which can be called by name from later places within your s
 Taking our hexagon example (and adding in a bit of colour swapping for good measure):
 
     TO hexagon
-            REPEAT 6 [ FD 50 RT 60 ]
-        END
-    
+        REPEAT 6 [ FD 50 RT 60 ]
+    END
 
     REPEAT 12 [ 
         SETC 0,127,0
@@ -102,8 +101,19 @@ Taking our hexagon example (and adding in a bit of colour swapping for good meas
         SETC 255,0,0
         hexagon RT 15 
     ]
+    
+A procedure may also take variables. If we wanted our `hexagon` procedure to take a `size` and `color` as parameters, we could do the following:
 
+    TO hexagon :size :color
+        SETC :color
+        REPEAT 6 [ FD :size RT 60 ]
+    END
 
-
+    REPEAT 12 [ 
+        hexagon 50 0,127,0 
+        RT 15 
+        hexagon 30 255,0,0 
+        RT 15 
+    ]
 
 
