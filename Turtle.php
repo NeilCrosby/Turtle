@@ -14,6 +14,7 @@ class Turtle {
         'TO'      => 'TO',
         'END'     => 'END',
         'SETCOLOR'=> 'SETC',
+        'MAKE'    => 'MAKE',
     );
 
     protected $_commandsNeedingArguments = array(
@@ -23,6 +24,7 @@ class Turtle {
         'LT',
         'REPEAT',
         'SETC',
+        'MAKE',
     );
     
     protected $_userDefinedCommands = array();
@@ -149,13 +151,9 @@ class Turtle {
             if (in_array($command, $this->_commandsNeedingArguments)) {
                 $tokenPointer++;
                 $argument = $tokens[$tokenPointer];
+                
                 if ( ':' === substr($argument, 0, 1) ) {
-                    $argument = substr($argument, 1);
-                    if (array_key_exists($argument, $passedInVariables)) {
-                        $argument = $passedInVariables[$argument];
-                    } else {
-                        throw new Exception("No variable with name $argument has been defined.");
-                    }
+                    $argument = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
                 }
             }
 
@@ -283,6 +281,22 @@ class Turtle {
                     }
                 
                     break;
+                    
+                case 'MAKE':
+                    $commandIsDrawable = false;
+
+                    if ( '"' !== substr($argument, 0, 1) ) {
+                        throw new Exception("MAKE requires its first parameter to be a named variable");
+                        return;
+                    }
+                    
+                    $namedVariable = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
+
+                    $tokenPointer++;
+                    $value = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
+                    
+                    $passedInVariables[$namedVariable] = $value;
+                    break;
                 default:
                     if (array_key_exists($command, $this->_userDefinedCommands)) {
                         $variables = array();
@@ -321,6 +335,35 @@ class Turtle {
             //  and always increase the token pointer by one
             $tokenPointer++;
         }
+    }
+    
+    /**
+     * Evaluates the token pointed to by tokenPointer and moves tokenPointer
+     * to point at the final token used in that evaluation.
+     **/
+    protected function _evaluateToken($tokens, &$tokenPointer, &$variables) {
+        if (!isset($tokens[$tokenPointer])) {
+            throw new Exception('Attempting to parse past the end of the script!');
+        }
+        
+        $token = $tokens[$tokenPointer];
+
+        // " means 'the word is evaluated as itself'
+        if ( '"' === substr($token, 0, 1) ) {
+            return substr($token, 1);
+        }
+        
+        // : means 'the contents of'
+        if ( ':' === substr($token, 0, 1) ) {
+            $variableName = substr($token, 1);
+            if (isset($variables[$variableName])) {
+                return $variables[$variableName];
+            }
+            
+            throw new Exception('Unknown variable: '.$variableName);
+        }
+        
+        return $tokens[$tokenPointer];
     }
     
 }

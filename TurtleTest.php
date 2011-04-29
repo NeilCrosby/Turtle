@@ -21,7 +21,11 @@ class TurtleTest extends PHPUnit_Framework_TestCase
         
         $expectedFilename = ( '' === $expected )
                           ? 'empty-output'
-                          : str_replace(array(' ', ':'), '-', $expected);
+                          : str_replace(
+                              array(' ', ':', '"'), 
+                              array('-', 'c', 'q'), 
+                              $expected
+                            );
         $expectedFilename = "test-images/$expectedFilename.png";
         
         if (!file_exists($expectedFilename)) {
@@ -199,6 +203,34 @@ REPEAT 12 [
 ]
 LOGO
                 , 'TO HEXAGON :SIZE :COLOR SETC :COLOR REPEAT 6 [ FD :SIZE RT 60 ] END REPEAT 12 [ HEXAGON 50 0,127,0 RT 15 HEXAGON 30 255,0,0 RT 15 ]'
+            ),
+            array(
+                <<<LOGO
+BK 5;PENUP
+MAKE "x 90
+RT :x
+FD 25
+LOGO
+                , 'BK 5 MAKE "X 90 RT :X FD 25'
+            ),
+            array(
+                <<<LOGO
+BK 5
+MAKE "y 60
+MAKE "x :y
+RT :x
+FD 25
+LOGO
+                , 'BK 5 MAKE "Y 60 MAKE "X :Y RT :X FD 25'
+            ),
+            array(
+                <<<LOGO
+BK 5
+MAKE "x "45
+RT :x
+FD 25
+LOGO
+                , 'BK 5 MAKE "X "45 RT :X FD 25'
             )
         );
     }

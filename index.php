@@ -2,6 +2,21 @@
 
 require_once('Turtle.php');
 
+function removeMagicQuotes (&$array) {
+    if (!get_magic_quotes_gpc()) {
+        return;
+    }
+
+    foreach ($array as $key => $val) {
+        if (is_array($val)) {
+            removeMagicQuotes($array[$key], $trim);
+        } else {
+            $array[$key] = stripslashes($val);
+        }
+    }   
+}
+
+removeMagicQuotes($_POST);
 $commands = (isset($_POST['commands'])) ? $_POST['commands'] : '';
 
 $error = false;
