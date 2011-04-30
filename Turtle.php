@@ -17,16 +17,6 @@ class Turtle {
         'MAKE'    => 'MAKE',
     );
 
-    protected $_commandsNeedingArguments = array(
-        'FD',
-        'BK',
-        'RT',
-        'LT',
-        'REPEAT',
-        'SETC',
-        'MAKE',
-    );
-    
     protected $_userDefinedCommands = array();
     
     protected $_currentX = 100;
