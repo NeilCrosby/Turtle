@@ -34,9 +34,11 @@ class TurtleTest extends PHPUnit_Framework_TestCase
             );
         }
         
+        // md5 is being performed on both the outputs of the imges to make
+        // the phpunit output more palettable when there is an error 
         $this->assertEquals(
-            file_get_contents($expectedFilename),
-            $turtle->getImage(),
+            md5(file_get_contents($expectedFilename)),
+            md5($turtle->getImage()),
             "Generated image does not match expected image."
         );
     }

@@ -31,7 +31,7 @@ class Turtle {
     
     protected $_currentX = 100;
     protected $_currentY = 100;
-    protected $_currentAngle = -90;
+    protected $_currentAngle = 270;
     protected $_isPenDown = true;
               
     protected $_tokens;
@@ -147,20 +147,22 @@ class Turtle {
 
             switch ($command) {
                 case 'FD':
-                    $newX = $this->_currentX + cos(deg2rad($this->_currentAngle)) * $argument;
-                    $newY = $this->_currentY + sin(deg2rad($this->_currentAngle)) * $argument;
+                    $newPosition = $this->_getNewPosition($argument);
+                    $newX = $newPosition['x'];
+                    $newY = $newPosition['y'];
+                    break;
+                case 'BK':
+                    $newPosition = $this->_getNewPosition(-$argument);
+                    $newX = $newPosition['x'];
+                    $newY = $newPosition['y'];
                     break;
                 case 'RT':
                     $commandIsDrawable = false;
-                    $this->_currentAngle += $argument;
-                    break;
-                case 'BK':
-                    $newX = $this->_currentX - cos(deg2rad($this->_currentAngle)) * $argument;
-                    $newY = $this->_currentY - sin(deg2rad($this->_currentAngle)) * $argument;
+                    $this->_changeAngleBy($argument);
                     break;
                 case 'LT':
                     $commandIsDrawable = false;
-                    $this->_currentAngle -= $argument;
+                    $this->_changeAngleBy(-$argument);
                     break;
                 case 'PD':
                     $commandIsDrawable = false;
@@ -365,6 +367,38 @@ class Turtle {
         }
         
         return $tokens[$tokenPointer];
+    }
+    
+    protected function _getNewPosition($argument) {
+        $newX = $this->_currentX;
+        $newY = $this->_currentY;
+
+        $deg = $this->_currentAngle;
+        if ( 0 === $deg % 360 ) {
+            $newX += $argument;
+        } else if ( 90 === $deg % 360 ) {
+            $newY += $argument;
+        } else if ( 180 === $deg % 360 ) {
+            $newX -= $argument;
+        } else if ( 270 === $deg % 360 ) {
+            $newY -= $argument;
+        } else {
+            $newX = $this->_currentX + cos(deg2rad($deg)) * $argument;
+            $newY = $this->_currentY + sin(deg2rad($deg)) * $argument;
+        }
+        
+        return array(
+            'x' => $newX,
+            'y' => $newY,
+        );
+    }
+    
+    protected function _changeAngleBy($angleChange) {
+        $this->_currentAngle += $angleChange;
+        
+        while ( $this->_currentAngle < 0) {
+            $this->_currentAngle += 360;
+        }
     }
     
 }
