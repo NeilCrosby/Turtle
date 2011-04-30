@@ -133,170 +133,15 @@ class Turtle {
         // now, lets start doing something with these tokens
         $tokenPointer = 0;
         while ($tokenPointer < sizeof($tokens)) {
-            $command = $tokens[$tokenPointer];
-            $argument = null;
-
-            if (in_array($command, $this->_commandsNeedingArguments)) {
-                $tokenPointer++;
-                $argument = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
-            }
-
-            switch ($command) {
-                case 'FD':
-                    $newPosition = $this->_getNewPosition($argument);
-                    $this->_drawLineTo($newPosition);
-                    $this->_currentX = $newPosition['x'];
-                    $this->_currentY = $newPosition['y'];
-                    break;
-                case 'BK':
-                    $newPosition = $this->_getNewPosition(-$argument);
-                    $this->_drawLineTo($newPosition);
-                    $this->_currentX = $newPosition['x'];
-                    $this->_currentY = $newPosition['y'];
-                    break;
-                case 'RT':
-                    $this->_changeAngleBy($argument);
-                    break;
-                case 'LT':
-                    $this->_changeAngleBy(-$argument);
-                    break;
-                case 'PD':
-                    $this->_isPenDown = true;
-                    break;
-                case 'PU':
-                    $this->_isPenDown = false;
-                    break;
-                case 'SETC':
-                    $colors = explode(',', $argument);
-                    $colors = array_pad($colors, 3, 0);
-                    $this->_color = imagecolorallocate(
-                        $this->_image, 
-                        $colors[0], $colors[1], $colors[2]
-                    );
-                    break;
-                case 'REPEAT':
-                    $tokenPointer++;
-                    if ('[' !== $tokens[$tokenPointer]) {
-                        throw new Exception("REPEAT must be followed by a number, then an opening square bracket");
-                    }
-                    
-                    $tokenPointer++;
-                    $startingPoint = $tokenPointer;
-                    
-                    $openBrackets = 1;
-                    // now start looking for the closing bracket to go with this opening one
-                    while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
-                        if ( '[' === $tokens[$tokenPointer] ) {
-                            $openBrackets++;
-                        } else if ( ']' === $tokens[$tokenPointer] ) {
-                            $openBrackets--;
-                        }
-                        
-                        if ( 0 === $openBrackets) {
-                            for ($i=0; $i < $argument; $i++) {
-                                $commands = array_slice(
-                                    $tokens,
-                                    $startingPoint,
-                                    $tokenPointer - $startingPoint
-                                );
-
-                                $this->_parseTokens(
-                                    $commands,
-                                    &$passedInVariables
-                                );
-                                $newX = $this->_currentX;
-                                $newY = $this->_currentY;
-                            }
-                            continue;
-                        }
-                        
-                        
-                        $tokenPointer++;
-                    }
-                    
-                    break;
-                case 'TO':
-                    $tokenPointer++;
-                    
-                    $functionName = $tokens[$tokenPointer];
-                    if (in_array($functionName, $this->_commands)) {
-                        throw new Exception("$functionName is a reserved word, and cannot be used as a function name.");
-                    }
-                    
-                    $tokenPointer++;
-
-                    // now, find any variables that want to be passed into the
-                    // procedure
-                    $variables = array();
-                    while($tokenPointer < sizeof($tokens) && ':' === substr($tokens[$tokenPointer], 0, 1)) {
-                        $variables[] = substr($tokens[$tokenPointer], 1);
-                        $tokenPointer++;
-                    }
-                    
-                    $startingPoint = $tokenPointer;
-                    
-                    $foundEnd = false;
-                    while ($tokenPointer < sizeof($tokens) && !$foundEnd) {
-                        if ( 'END' === $tokens[$tokenPointer] ) {
-                            $commands = array_slice(
-                                $tokens,
-                                $startingPoint,
-                                $tokenPointer - $startingPoint
-                            );
-                            
-                            $this->_userDefinedCommands[$functionName] = array(
-                                'expectedVariables' => $variables,
-                                'commands'  => $commands,
-                            );
-                            $foundEnd = true;
-                            continue;
-                        }
-                        
-                        $tokenPointer++;
-                    }
-                    
-                    if (!$foundEnd) {
-                        throw new Exception("Could not find end of function for $functionName");
-                        return;
-                    }
-                
-                    break;
-                    
-                case 'MAKE':
-                    if ( '"' !== substr($tokens[$tokenPointer], 0, 1) ) {
-                        throw new Exception("MAKE requires its first parameter to be a named variable");
-                        return;
-                    }
-                    
-                    $namedVariable = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
-
-                    $tokenPointer++;
-                    $value = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
-                    
-                    $passedInVariables[$namedVariable] = $value;
-                    break;
-                default:
-                    if (array_key_exists($command, $this->_userDefinedCommands)) {
-                        $variables = array();
-                        foreach ($this->_userDefinedCommands[$command]['expectedVariables'] as $expectedVariable) {
-                            $tokenPointer++;
-                            $variables[$expectedVariable] = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
-                        }
-                        
-                        $this->_parseTokens(
-                            $this->_userDefinedCommands[$command]['commands'],
-                            $variables,
-                            $this->_userDefinedCommands[$command]['expectedVariables']
-                        );
-                    } else {
-                        throw new Exception("$command is undefined.");
-                    }
-            }
-
-            // finally:
-            //  and always increase the token pointer by one
+            $command = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
             $tokenPointer++;
         }
+    }
+    
+    protected function _getNextToken($tokens, &$tokenPointer, &$variables) {
+        $tokenPointer++;
+        $argument = $tokens[$tokenPointer];
+        return $this->_evaluateToken($tokens, $tokenPointer, $variables);
     }
     
     /**
@@ -310,6 +155,10 @@ class Turtle {
         
         $token = $tokens[$tokenPointer];
 
+        if (is_numeric($token)) {
+            return $token;
+        }
+        
         // " means 'the word is evaluated as itself'
         if ( '"' === substr($token, 0, 1) ) {
             return substr($token, 1);
@@ -326,6 +175,14 @@ class Turtle {
         }
         
         switch ($token) {
+            case 'FD':
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $this->_move($argument);
+                break;
+            case 'BK':
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $this->_move(-$argument);
+                break;
             case 'SUM':
                 $tokenPointer++;
                 $item1 = $this->_evaluateToken($tokens, $tokenPointer, $variables);
@@ -334,8 +191,161 @@ class Turtle {
                 
                 return $item1 + $item2;
                 break;
+            case 'RT':
+                $tokenPointer++;
+                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+
+                $this->_changeAngleBy($argument);
+                break;
+            case 'LT':
+                $tokenPointer++;
+                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+
+                $this->_changeAngleBy(-$argument);
+                break;
+            case 'PD':
+                $this->_isPenDown = true;
+                break;
+            case 'PU':
+                $this->_isPenDown = false;
+                break;
+            case 'SETC':
+                $tokenPointer++;
+                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+
+                $colors = explode(',', $argument);
+                $colors = array_pad($colors, 3, 0);
+                $this->_color = imagecolorallocate(
+                    $this->_image, 
+                    $colors[0], $colors[1], $colors[2]
+                );
+                break;
+            case 'REPEAT':
+                $tokenPointer++;
+                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+
+                $tokenPointer++;
+                if ('[' !== $tokens[$tokenPointer]) {
+                    throw new Exception("REPEAT must be followed by a number, then an opening square bracket");
+                }
+                
+                $tokenPointer++;
+                $startingPoint = $tokenPointer;
+                
+                $openBrackets = 1;
+                // now start looking for the closing bracket to go with this opening one
+                while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
+                    if ( '[' === $tokens[$tokenPointer] ) {
+                        $openBrackets++;
+                    } else if ( ']' === $tokens[$tokenPointer] ) {
+                        $openBrackets--;
+                    }
+                    
+                    if ( 0 === $openBrackets) {
+                        for ($i=0; $i < $argument; $i++) {
+                            $commands = array_slice(
+                                $tokens,
+                                $startingPoint,
+                                $tokenPointer - $startingPoint
+                            );
+
+                            $this->_parseTokens(
+                                $commands,
+                                &$variables
+                            );
+                            $newX = $this->_currentX;
+                            $newY = $this->_currentY;
+                        }
+                        continue;
+                    }
+                    
+                    
+                    $tokenPointer++;
+                }
+                
+                break;
+            case 'TO':
+                $tokenPointer++;
+                $functionName = $tokens[$tokenPointer];
+                if (in_array($functionName, $this->_commands)) {
+                    throw new Exception("$functionName is a reserved word, and cannot be used as a function name.");
+                }
+                
+                $tokenPointer++;
+
+                // now, find any variables that want to be passed into the
+                // procedure
+                $variables = array();
+                while($tokenPointer < sizeof($tokens) && ':' === substr($tokens[$tokenPointer], 0, 1)) {
+                    $variables[] = substr($tokens[$tokenPointer], 1);
+                    $tokenPointer++;
+                }
+                
+                $startingPoint = $tokenPointer;
+                
+                $foundEnd = false;
+                while ($tokenPointer < sizeof($tokens) && !$foundEnd) {
+                    if ( 'END' === $tokens[$tokenPointer] ) {
+                        $commands = array_slice(
+                            $tokens,
+                            $startingPoint,
+                            $tokenPointer - $startingPoint
+                        );
+                        
+                        $this->_userDefinedCommands[$functionName] = array(
+                            'expectedVariables' => $variables,
+                            'commands'  => $commands,
+                        );
+                        
+                        $foundEnd = true;
+                        continue;
+                    }
+                    
+                    $tokenPointer++;
+                }
+                
+                if (!$foundEnd) {
+                    throw new Exception("Could not find end of function for $functionName");
+                    return;
+                }
+            
+                break;
+                
+            case 'MAKE':
+                $tokenPointer++;
+                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+
+                if ( '"' !== substr($tokens[$tokenPointer], 0, 1) ) {
+                    throw new Exception("MAKE requires its first parameter to be a named variable");
+                    return;
+                }
+                
+                $namedVariable = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+
+                $tokenPointer++;
+                $value = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                
+                $variables[$namedVariable] = $value;
+                break;
             default:
-                // do nothing
+                if (array_key_exists($token, $this->_userDefinedCommands)) {
+                    $variablesToPass = array();
+                    foreach ($this->_userDefinedCommands[$token]['expectedVariables'] as $expectedVariable) {
+                        $tokenPointer++;
+                        $variablesToPass[$expectedVariable] = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                    }
+                    
+                    $this->_parseTokens(
+                        $this->_userDefinedCommands[$token]['commands'],
+                        $variablesToPass,
+                        $this->_userDefinedCommands[$token]['expectedVariables']
+                    );
+                } else if ( isset($tokens[$tokenPointer - 1]) && 'TO' === $tokens[$tokenPointer - 1]) {
+                    // we're trying to define this procedure
+                    return $token;
+                } else {
+                    throw new Exception("$token is undefined.");
+                }
         }
         
         return $tokens[$tokenPointer];
@@ -378,8 +388,6 @@ class Turtle {
             return;
         }
         
-//        echo "<p>{$this->_currentX},{$this->_currentY} - {$newPosition['x']},{$newPosition['y']}</p>";
-        
         imageline(
             $this->_image, 
             $this->_currentX, $this->_currentY,
@@ -389,5 +397,12 @@ class Turtle {
         
     }
     
+    protected function _move($distance) {
+        $newPosition = $this->_getNewPosition($distance);
+        $this->_drawLineTo($newPosition);
+        $this->_currentX = $newPosition['x'];
+        $this->_currentY = $newPosition['y'];
+        
+    }
 }
 ?>

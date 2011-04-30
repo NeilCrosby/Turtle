@@ -9,8 +9,12 @@ class TurtleTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider validCommandProvider
      **/
-    public function testValidCommandsResultInNoError($input, $expected) {
+    public function testValidCommandsResultInNoErrorAndGiveExpectedOutput($input, $expected) {
         $turtle = new Turtle($input);
+        $this->assertEquals(
+            $expected,
+            $turtle->getNormalisedTokens()
+        );
     }
     
     /**
@@ -169,10 +173,10 @@ LOGO
 forward 20
 setc 127
 forward 20
-setc 0,255,0
+setc "0,255,0
 forward 20
 LOGO
-                , 'FD 20 SETC 127 FD 20 SETC 0,255,0 FD 20'
+                , 'FD 20 SETC 127 FD 20 SETC "0,255,0 FD 20'
             ),
             array(
                 <<<LOGO
@@ -182,13 +186,13 @@ LOGO
 
 
                 REPEAT 12 [ 
-                    SETC 0,127,0
+                    SETC "0,127,0
                     hexagon RT 15 
-                    SETC 255,0,0
+                    SETC "255,0,0
                     hexagon RT 15 
                 ]
 LOGO
-                , 'TO HEXAGON REPEAT 6 [ FD 50 RT 60 ] END REPEAT 12 [ SETC 0,127,0 HEXAGON RT 15 SETC 255,0,0 HEXAGON RT 15 ]'
+                , 'TO HEXAGON REPEAT 6 [ FD 50 RT 60 ] END REPEAT 12 [ SETC "0,127,0 HEXAGON RT 15 SETC "255,0,0 HEXAGON RT 15 ]'
             ),
             array(
                 <<<LOGO
@@ -198,13 +202,13 @@ TO hexagon :size :color
 END
 
 REPEAT 12 [ 
-    hexagon 50 0,127,0 
+    hexagon 50 "0,127,0 
     RT 15 
-    hexagon 30 255,0,0 
+    hexagon 30 "255,0,0 
     RT 15 
 ]
 LOGO
-                , 'TO HEXAGON :SIZE :COLOR SETC :COLOR REPEAT 6 [ FD :SIZE RT 60 ] END REPEAT 12 [ HEXAGON 50 0,127,0 RT 15 HEXAGON 30 255,0,0 RT 15 ]'
+                , 'TO HEXAGON :SIZE :COLOR SETC :COLOR REPEAT 6 [ FD :SIZE RT 60 ] END REPEAT 12 [ HEXAGON 50 "0,127,0 RT 15 HEXAGON 30 "255,0,0 RT 15 ]'
             ),
             array(
                 <<<LOGO
