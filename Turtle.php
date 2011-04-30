@@ -167,11 +167,11 @@ class Turtle {
         switch ($token) {
             case 'FD':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $this->_move($argument);
+                $this->_movePointer($argument);
                 break;
             case 'BK':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $this->_move(-$argument);
+                $this->_movePointer(-$argument);
                 break;
             case 'SUM':
                 $tokenPointer++;
@@ -373,23 +373,18 @@ class Turtle {
         }
     }
     
-    protected function _drawLineTo($newPosition) {
-        if (!$this->_isPenDown) {
-            return;
-        }
-        
-        imageline(
-            $this->_image, 
-            $this->_currentX, $this->_currentY,
-            $newPosition['x'], $newPosition['y'],
-            $this->_color
-        );
-        
-    }
-    
-    protected function _move($distance) {
+    protected function _movePointer($distance) {
         $newPosition = $this->_getNewPosition($distance);
-        $this->_drawLineTo($newPosition);
+
+        if ($this->_isPenDown) {
+            imageline(
+                $this->_image, 
+                $this->_currentX, $this->_currentY,
+                $newPosition['x'], $newPosition['y'],
+                $this->_color
+            );
+        }
+
         $this->_currentX = $newPosition['x'];
         $this->_currentY = $newPosition['y'];
         
