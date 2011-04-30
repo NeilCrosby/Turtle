@@ -130,7 +130,6 @@ class Turtle {
     
     protected function _getNextToken($tokens, &$tokenPointer, &$variables) {
         $tokenPointer++;
-        $argument = $tokens[$tokenPointer];
         return $this->_evaluateToken($tokens, $tokenPointer, $variables);
     }
     
@@ -174,23 +173,17 @@ class Turtle {
                 $this->_movePointer(-$argument);
                 break;
             case 'SUM':
-                $tokenPointer++;
-                $item1 = $this->_evaluateToken($tokens, $tokenPointer, $variables);
-                $tokenPointer++;
-                $item2 = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                $item1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $item2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 
                 return $item1 + $item2;
                 break;
             case 'RT':
-                $tokenPointer++;
-                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
-
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 $this->_changeAngleBy($argument);
                 break;
             case 'LT':
-                $tokenPointer++;
-                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
-
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 $this->_changeAngleBy(-$argument);
                 break;
             case 'PD':
@@ -200,8 +193,7 @@ class Turtle {
                 $this->_isPenDown = false;
                 break;
             case 'SETC':
-                $tokenPointer++;
-                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
 
                 $colors = explode(',', $argument);
                 $colors = array_pad($colors, 3, 0);
@@ -211,8 +203,7 @@ class Turtle {
                 );
                 break;
             case 'REPEAT':
-                $tokenPointer++;
-                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
 
                 $tokenPointer++;
                 if ('[' !== $tokens[$tokenPointer]) {
@@ -302,8 +293,7 @@ class Turtle {
                 break;
                 
             case 'MAKE':
-                $tokenPointer++;
-                $argument = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
 
                 if ( '"' !== substr($tokens[$tokenPointer], 0, 1) ) {
                     throw new Exception("MAKE requires its first parameter to be a named variable");
@@ -311,9 +301,7 @@ class Turtle {
                 }
                 
                 $namedVariable = $this->_evaluateToken($tokens, $tokenPointer, $variables);
-
-                $tokenPointer++;
-                $value = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                $value = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 
                 $variables[$namedVariable] = $value;
                 break;
@@ -321,8 +309,7 @@ class Turtle {
                 if (array_key_exists($token, $this->_userDefinedCommands)) {
                     $variablesToPass = array();
                     foreach ($this->_userDefinedCommands[$token]['expectedVariables'] as $expectedVariable) {
-                        $tokenPointer++;
-                        $variablesToPass[$expectedVariable] = $this->_evaluateToken($tokens, $tokenPointer, $variables);
+                        $variablesToPass[$expectedVariable] = $this->_getNextToken($tokens, $tokenPointer, $variables);
                     }
                     
                     $this->_parseTokens(
