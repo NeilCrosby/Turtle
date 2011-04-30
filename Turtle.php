@@ -133,10 +133,6 @@ class Turtle {
         // now, lets start doing something with these tokens
         $tokenPointer = 0;
         while ($tokenPointer < sizeof($tokens)) {
-            $newX = $this->_currentX;
-            $newY = $this->_currentY;
-            $commandIsDrawable = true;
-
             $command = $tokens[$tokenPointer];
             $argument = null;
 
@@ -148,33 +144,29 @@ class Turtle {
             switch ($command) {
                 case 'FD':
                     $newPosition = $this->_getNewPosition($argument);
-                    $newX = $newPosition['x'];
-                    $newY = $newPosition['y'];
+                    $this->_drawLineTo($newPosition);
+                    $this->_currentX = $newPosition['x'];
+                    $this->_currentY = $newPosition['y'];
                     break;
                 case 'BK':
                     $newPosition = $this->_getNewPosition(-$argument);
-                    $newX = $newPosition['x'];
-                    $newY = $newPosition['y'];
+                    $this->_drawLineTo($newPosition);
+                    $this->_currentX = $newPosition['x'];
+                    $this->_currentY = $newPosition['y'];
                     break;
                 case 'RT':
-                    $commandIsDrawable = false;
                     $this->_changeAngleBy($argument);
                     break;
                 case 'LT':
-                    $commandIsDrawable = false;
                     $this->_changeAngleBy(-$argument);
                     break;
                 case 'PD':
-                    $commandIsDrawable = false;
                     $this->_isPenDown = true;
                     break;
                 case 'PU':
-                    $commandIsDrawable = false;
                     $this->_isPenDown = false;
                     break;
                 case 'SETC':
-                    $commandIsDrawable = false;
-                    
                     $colors = explode(',', $argument);
                     $colors = array_pad($colors, 3, 0);
                     $this->_color = imagecolorallocate(
@@ -183,7 +175,6 @@ class Turtle {
                     );
                     break;
                 case 'REPEAT':
-                    $commandIsDrawable = false;
                     $tokenPointer++;
                     if ('[' !== $tokens[$tokenPointer]) {
                         throw new Exception("REPEAT must be followed by a number, then an opening square bracket");
@@ -225,7 +216,6 @@ class Turtle {
                     
                     break;
                 case 'TO':
-                    $commandIsDrawable = false;
                     $tokenPointer++;
                     
                     $functionName = $tokens[$tokenPointer];
@@ -273,8 +263,6 @@ class Turtle {
                     break;
                     
                 case 'MAKE':
-                    $commandIsDrawable = false;
-
                     if ( '"' !== substr($tokens[$tokenPointer], 0, 1) ) {
                         throw new Exception("MAKE requires its first parameter to be a named variable");
                         return;
@@ -289,7 +277,6 @@ class Turtle {
                     break;
                 default:
                     if (array_key_exists($command, $this->_userDefinedCommands)) {
-                        $commandIsDrawable = false;
                         $variables = array();
                         foreach ($this->_userDefinedCommands[$command]['expectedVariables'] as $expectedVariable) {
                             $tokenPointer++;
@@ -301,27 +288,12 @@ class Turtle {
                             $variables,
                             $this->_userDefinedCommands[$command]['expectedVariables']
                         );
-                        $newX = $this->_currentX;
-                        $newY = $this->_currentY;
                     } else {
                         throw new Exception("$command is undefined.");
                     }
             }
 
-            // now, lets draw a line
-            if ($this->_isPenDown && $commandIsDrawable) {
-                imageline(
-                    $this->_image, 
-                    $this->_currentX, $this->_currentY,
-                    $newX, $newY,
-                    $this->_color
-                );
-            }
-
             // finally:
-            //  update the current x and y
-            $this->_currentX = $newX;
-            $this->_currentY = $newY;
             //  and always increase the token pointer by one
             $tokenPointer++;
         }
@@ -399,6 +371,22 @@ class Turtle {
         while ( $this->_currentAngle < 0) {
             $this->_currentAngle += 360;
         }
+    }
+    
+    protected function _drawLineTo($newPosition) {
+        if (!$this->_isPenDown) {
+            return;
+        }
+        
+//        echo "<p>{$this->_currentX},{$this->_currentY} - {$newPosition['x']},{$newPosition['y']}</p>";
+        
+        imageline(
+            $this->_image, 
+            $this->_currentX, $this->_currentY,
+            $newPosition['x'], $newPosition['y'],
+            $this->_color
+        );
+        
     }
     
 }
