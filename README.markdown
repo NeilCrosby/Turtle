@@ -6,6 +6,8 @@ This parser was written as part of a competition at work.  The task was to:
 
 This is my attempt at that.
 
+An installed version of the code can be found at http://projects.thecodetrain.co.uk/turtle/
+
 ## Syntax
 
 Any commands may be written either in upper or lowercase. Any text in brackets is a shortened form of the command and may be used instead of the long form.
