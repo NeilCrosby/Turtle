@@ -126,8 +126,13 @@ class Turtle {
         }
     }
     
-    protected function _getNextToken($tokens, &$tokenPointer, &$variables) {
+    protected function _getNextToken($tokens, &$tokenPointer, &$variables, $evaluate=true) {
         $tokenPointer++;
+        
+        if (!$evaluate) {
+            return $tokens[$tokenPointer];
+        }
+        
         return $this->_evaluateToken($tokens, $tokenPointer, $variables);
     }
     
@@ -217,14 +222,11 @@ class Turtle {
                 $openBrackets = 1;
 
                 // now start looking for the closing bracket to go with this opening one
-                // we're deliberately not using _getNextToken here, because
-                // we don't want to end up parsing any of the contents of the
-                // loop yet.
                 while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
-                    $tokenPointer++;
-                    if ( '[' === $tokens[$tokenPointer] ) {
+                    $newToken = $this->_getNextToken($tokens, $tokenPointer, $variables, false);
+                    if ( '[' === $newToken ) {
                         $openBrackets++;
-                    } else if ( ']' === $tokens[$tokenPointer] ) {
+                    } else if ( ']' === $newToken ) {
                         $openBrackets--;
                     }
                     
@@ -248,7 +250,7 @@ class Turtle {
                 
                 break;
             case 'TO':
-                $functionName = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $functionName = $this->_getNextToken($tokens, $tokenPointer, $variables, false);
                 if (in_array($functionName, $this->_commands)) {
                     throw new Exception("$functionName is a reserved word, and cannot be used as a function name.");
                 }

@@ -314,6 +314,8 @@ LOGO
     public function invalidCommandProvider() {
         return array(
             array("FISHCAKE forward 27"),
+            array("TO FORWARD RT 90 END"),
+            array("TO FD RT 90 END"),
         );
     }
 }
