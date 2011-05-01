@@ -70,6 +70,8 @@ Sets the color of the pen.  The numbers available to be used are 0-255. If a sin
     SETC 127
     SETC 255,170,187
     
+NB: I am not comfortable about how the comma separated color setting currently works.  This may end up changing at some point. Unfortunately I didn't find anything in any of the documentation I read that dealt with "big" colours.
+    
 ### REPEAT _number_ _list_
 
 Repeats a _list_ of commands a given _number_ of times.
@@ -141,3 +143,17 @@ Sums two values together
     MAKE "y 30
     MAKE "z SUM :x :y ; z becomes 90
     MAKE "z SUM 60 -40 ; z becomes 20
+
+## Tests
+
+Lots of tests have been written, and can be run on the commandline as follows:
+
+    phpunit TurtleTest
+
+## Further reading
+
+A lot of the choices about how the Logo language parser works came from various pieces of documentation around the web. This documentation included:
+
+* http://en.wikipedia.org/wiki/Logo_(programming_language)#Syntax
+* http://el.media.mit.edu/logo-foundation/logo/turtle.html
+* http://groups.yahoo.com/group/LogoForum/ (and the ATARI Logo doc file found within the files section)
