@@ -1,24 +1,10 @@
 <?php
 
-require_once('Turtle.php');
-
-function removeMagicQuotes (&$array) {
-    if (!get_magic_quotes_gpc()) {
-        return;
-    }
-
-    foreach ($array as $key => $val) {
-        if (is_array($val)) {
-            removeMagicQuotes($array[$key], $trim);
-        } else {
-            $array[$key] = stripslashes($val);
-        }
-    }   
-}
+require_once('toolbox.php');
 
 removeMagicQuotes($_GET);
 
-$turtle = new Turtle($_GET['commands'], 200, 200);
+$turtle = new Turtle($_GET['commands'], 350, 350);
 
 $filename = str_replace(
     array(' ', ':', '"'), 

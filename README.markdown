@@ -1,4 +1,4 @@
-# A simple Logo parser, built in PHP
+# Simple Turtle Graphics Parser (written in PHP)
 
 This parser was written as part of a competition at work.  The task was to:
 
