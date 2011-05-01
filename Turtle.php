@@ -29,8 +29,6 @@ class Turtle {
     protected $_color;
     
     public function __construct($input, $width=200, $height=200) {
-        $this->_tokens = $this->_getTokens($input);
-        
         $this->_width = $width;
         $this->_height = $height;
         
@@ -40,6 +38,7 @@ class Turtle {
         $this->_image = imagecreatetruecolor($this->_width, $this->_height);
         $this->_color = imagecolorallocate($this->_image, 255, 0, 0);
         
+        $this->_tokens = $this->_getTokens($input);
         $this->_parseTokens($this->_tokens);
     }
     
@@ -59,31 +58,33 @@ class Turtle {
     }
     
     protected function _getTokens($input) {
-        $commands = array(); 
+        $tokens = array(); 
 
-
-        $tempCommands = explode("\n", $input);
-        foreach ($tempCommands as $key=>$value) {
+        $lines = explode("\n", strtoupper($input));
+        foreach ($lines as $line) {
             // first, remove anything after semi colons on any line
-            $semiColonPosition = strpos($value, ';');
+            $semiColonPosition = strpos($line, ';');
             if ( false !== $semiColonPosition) {
-                $value = substr($value, 0, $semiColonPosition);
+                $line = substr($line, 0, $semiColonPosition);
+                $line = trim($line);
+                
+                // if the line then becomes empty, we'll ignore it completely
+                if (!$line) {
+                    continue;
+                }
             }
             
-            $value = str_replace('[', ' [ ', $value);
-            $value = str_replace(']', ' ] ', $value);
+            // then, force spaces around any square brackets
+            $line = str_replace('[', ' [ ', $line);
+            $line = str_replace(']', ' ] ', $line);
 
-            $tempInnerCommands = explode(' ', $value);
-            
-            foreach ($tempInnerCommands as $tempInnerCommand) {
-                $commands[] = $tempInnerCommand;
-            }
+            // then add all the tokens from this line onto the tokens array
+            $lineTokens = explode(' ', $line);
+            $tokens = array_merge($tokens, $lineTokens);
         }
         
-        foreach ($commands as $key=>$value) {
-            // and try all lines to get rid of whitespace /  newlines
-            $value = trim(strtoupper($value));
-
+        
+        foreach ($tokens as $key=>$value) {
             // normalise the resulting command value to a short command
             foreach ($this->_commands as $longCommand => $shortCommand) {
                 $value = preg_replace(
@@ -93,20 +94,14 @@ class Turtle {
                 );
             }
 
-            // and put the result back into the commands array
-            $commands[$key] = $value;
+            // and put the result back into the tokens array, and trim it
+            // to get rid of any unsightly newlines or overabundance of spaces
+            $tokens[$key] = trim($value);
         }
 
-        // get rid of any blank lines left by the  trimming procedure
-        $commands = array_filter($commands, array('self', 'reductionCallback'));
-
-        // join all the commands into one long space separated string
-        $temp = implode(' ', $commands);
-        // and then finally tokenise everything into one long sequential array
-        $tokens = explode(' ', $temp);
-        
-        // and finally finally get rid of any blank lines left by the trimming procedure
+        // and finally finally get rid of any blank tokens left by the trimming procedure
         $tokens = array_filter($tokens, array('self', 'reductionCallback'));
+        $tokens = array_merge($tokens);
 
         return $tokens;
     }

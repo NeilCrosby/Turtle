@@ -255,14 +255,14 @@ to spiral :size :angle
     right :angle
 end
 
-make "size 5
+make "size 0
 make "angle 91
 repeat 50 [ 
     spiral :size :angle 
     make "size sum :size 2 
 ]
 LOGO
-                , 'TO SPIRAL :SIZE :ANGLE FD :SIZE RT :ANGLE END MAKE "SIZE 5 MAKE "ANGLE 91 REPEAT 50 [ SPIRAL :SIZE :ANGLE MAKE "SIZE SUM :SIZE 2 ]'
+                , 'TO SPIRAL :SIZE :ANGLE FD :SIZE RT :ANGLE END MAKE "SIZE 0 MAKE "ANGLE 91 REPEAT 50 [ SPIRAL :SIZE :ANGLE MAKE "SIZE SUM :SIZE 2 ]'
             ),
             array(
                 <<<LOGO
@@ -274,7 +274,12 @@ repeat 4 [
 ]
 LOGO
                 , 'REPEAT 4 [ REPEAT 3 [ FD 20 RT 30 ] ]'
-            )
+            ),
+            array(
+                'REPEAT 4 [REPEAT 3 [FD 20 RT 30]]',
+                'REPEAT 4 [ REPEAT 3 [ FD 20 RT 30 ] ]'
+                
+            ),
         );
     }
     
