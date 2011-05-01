@@ -6,26 +6,27 @@ removeMagicQuotes($_POST);
 $commands = (isset($_POST['commands'])) 
           ? $_POST['commands'] 
           : <<<LOGO
+; here's a repeatable procedure. Lets call it "hexagon"
 TO hexagon :size :color
-  SETC :color
-  REPEAT 6 [ FD :size RT 60 ]
+    SETC :color
+    REPEAT 6 [ FD :size RT 60 ]
 END
 
+; now lets draw some hexagons
 REPEAT 12 [ 
-  hexagon 50 "0,127,0 
-  RT 15 
-  hexagon 30 "255,0,0 
-  RT 15 
+    RT 15 hexagon 50 "0,127,0
+    RT 15 hexagon 30 "0,0,255
 ]
 
-; now move the pen so we can do the blue hexagons
-PENUP
-FORWARD 110 RT 90 FORWARD 16 LT SUM 90 60
-PENDOWN
+; now move the pen so we're in position for the red hexagons
+; don't forget - commands don't have to be on separate lines - it's all just tokens in LogoLand.
+PENUP FORWARD 110 RT 90 FORWARD 16 LT 150 PENDOWN
 
+make "color 70
 REPEAT 12 [
-  REPEAT 18 [ hexagon 10 "0,0,255 RT 30 ]
-  PENUP LT 220 FD 75 PENDOWN
+    REPEAT 18 [ hexagon 10 :color RT 30 ]
+    MAKE "color SUM :color 15 ; add 15 to the value of the previous colour to make it brighter
+    PENUP LT 220 FD 75 PENDOWN ; move the turtle to its next position
 ]
 LOGO;
 
