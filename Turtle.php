@@ -2,7 +2,6 @@
 
 class Turtle {
 
-
     protected $_commands = array(
         'FORWARD' => 'FD', 
         'BACK'    => 'BK', 
@@ -100,13 +99,17 @@ class Turtle {
         }
 
         // and finally finally get rid of any blank tokens left by the trimming procedure
-        $tokens = array_filter($tokens, array('self', 'reductionCallback'));
+        $tokens = array_filter($tokens, array('self', '_reductionCallback'));
         $tokens = array_merge($tokens);
 
         return $tokens;
     }
     
-    public function reductionCallback($input) {
+    /**
+     * Callback used by array_filter call in _getTokens to determine whether
+     * a token should be removed from the list of tokens or not.
+     **/
+    protected function _reductionCallback($input) {
         if ( 0 === $input || '0' === $input) {
             return true;
         }
@@ -159,6 +162,12 @@ class Turtle {
         }
         
         switch ($token) {
+            case '[':
+                return $token;
+                break;
+            case ']':
+                return $token;
+                break;
             case 'FD':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 $this->_movePointer($argument);
@@ -166,12 +175,6 @@ class Turtle {
             case 'BK':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 $this->_movePointer(-$argument);
-                break;
-            case 'SUM':
-                $item1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $item2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                
-                return $item1 + $item2;
                 break;
             case 'RT':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
@@ -197,52 +200,55 @@ class Turtle {
                     $colors[0], $colors[1], $colors[2]
                 );
                 break;
-            case 'REPEAT':
-                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
+            case 'SUM':
+                $item1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $item2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
 
-                $tokenPointer++;
-                if ('[' !== $tokens[$tokenPointer]) {
+                return $item1 + $item2;
+                break;
+            case 'REPEAT':
+                $argument      = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $squareBracket = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                if ('[' !== $squareBracket) {
                     throw new Exception("REPEAT must be followed by a number, then an opening square bracket");
                 }
                 
-                $tokenPointer++;
-                $startingPoint = $tokenPointer;
-                
+                $startingPoint = $tokenPointer + 1;
                 $openBrackets = 1;
+
                 // now start looking for the closing bracket to go with this opening one
+                // we're deliberately not using _getNextToken here, because
+                // we don't want to end up parsing any of the contents of the
+                // loop yet.
                 while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
+                    $tokenPointer++;
                     if ( '[' === $tokens[$tokenPointer] ) {
                         $openBrackets++;
                     } else if ( ']' === $tokens[$tokenPointer] ) {
                         $openBrackets--;
                     }
                     
-                    if ( 0 === $openBrackets) {
-                        for ($i=0; $i < $argument; $i++) {
-                            $commands = array_slice(
-                                $tokens,
-                                $startingPoint,
-                                $tokenPointer - $startingPoint
-                            );
-
-                            $this->_parseTokens(
-                                $commands,
-                                &$variables
-                            );
-                            $newX = $this->_currentX;
-                            $newY = $this->_currentY;
-                        }
+                    if ( $openBrackets > 0 ) {
                         continue;
                     }
-                    
-                    
-                    $tokenPointer++;
+
+                    for ($i = 0; $i < $argument; $i++) {
+                        $commands = array_slice(
+                            $tokens,
+                            $startingPoint,
+                            $tokenPointer - $startingPoint
+                        );
+
+                        // We're passing $variables by reference since the
+                        // code inside a REPEAT block is still within
+                        // the scope of the code surrounding it.
+                        $this->_parseTokens($commands, &$variables);
+                    }
                 }
                 
                 break;
             case 'TO':
-                $tokenPointer++;
-                $functionName = $tokens[$tokenPointer];
+                $functionName = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 if (in_array($functionName, $this->_commands)) {
                     throw new Exception("$functionName is a reserved word, and cannot be used as a function name.");
                 }
@@ -288,14 +294,12 @@ class Turtle {
                 break;
                 
             case 'MAKE':
-                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $namedVariable = $this->_getNextToken($tokens, $tokenPointer, $variables);
 
                 if ( '"' !== substr($tokens[$tokenPointer], 0, 1) ) {
                     throw new Exception("MAKE requires its first parameter to be a named variable");
-                    return;
                 }
                 
-                $namedVariable = $this->_evaluateToken($tokens, $tokenPointer, $variables);
                 $value = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 
                 $variables[$namedVariable] = $value;
@@ -369,7 +373,6 @@ class Turtle {
 
         $this->_currentX = $newPosition['x'];
         $this->_currentY = $newPosition['y'];
-        
     }
 }
 ?>
