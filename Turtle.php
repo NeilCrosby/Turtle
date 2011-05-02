@@ -118,11 +118,9 @@ class Turtle {
     } 
 
     public function _parseTokens($tokens, $passedInVariables=array(), $expectedVariables=array()) {
-        // now, lets start doing something with these tokens
-        $tokenPointer = 0;
-        while ($tokenPointer < sizeof($tokens)) {
-            $command = $this->_evaluateToken($tokens, $tokenPointer, $passedInVariables);
-            $tokenPointer++;
+        $tokenPointer = -1;
+        while ($tokenPointer < sizeof($tokens) - 1) {
+            $command = $this->_getNextToken($tokens, $tokenPointer, $passedInVariables);
         }
     }
     
@@ -159,11 +157,11 @@ class Turtle {
         // : means 'the contents of'
         if ( ':' === substr($token, 0, 1) ) {
             $variableName = substr($token, 1);
-            if (isset($variables[$variableName])) {
-                return $variables[$variableName];
+            if (!isset($variables[$variableName])) {
+                throw new Exception('Unknown variable: '.$variableName);
             }
             
-            throw new Exception('Unknown variable: '.$variableName);
+            return $variables[$variableName];
         }
         
         switch ($token) {
