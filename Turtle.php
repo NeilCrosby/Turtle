@@ -87,9 +87,9 @@ class Turtle {
             // normalise the resulting command value to a short command
             foreach ($this->_commands as $longCommand => $shortCommand) {
                 $value = preg_replace(
-                    "/^$longCommand/",
+                    "/^$longCommand$/",
                     $shortCommand,
-                    $value
+                    trim($value)
                 );
             }
 
