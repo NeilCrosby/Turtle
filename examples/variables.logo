@@ -1,0 +1,19 @@
+; here, we create a variable. It's called 'length'.
+; Note the double quote at the start. This means "the word is evaluated as 
+; itself" - or 'length' is 'length', yo?
+; The next token denotes the value that 'length' will be given
+MAKE "length 5
+
+; we repeat the following 35 times
+REPEAT 35 [
+    ; here, we use the value of 'length'. The colon means "the contents of".
+    FORWARD :length
+    RT 60
+    
+    ; now, we finally make a new variable called 'length'.
+    ; Note that the token immediately after 'length' is SUM. SUM is a function
+    ; in logo that will return the sum of the two tokens that come immediately
+    ; after it. In this case, the two tokens are the current 'length' variable
+    ; and 5. So, the current 'length' and 5 are summed, and then set onto 'length'.
+    MAKE "length SUM :length 5
+]

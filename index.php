@@ -3,32 +3,21 @@
 require_once('toolbox.php');
 
 removeMagicQuotes($_POST);
+removeMagicQuotes($_GET);
+
 $commands = (isset($_POST['commands'])) 
-          ? $_POST['commands'] 
-          : <<<LOGO
-; here's a repeatable procedure. Lets call it "hexagon"
-TO hexagon :size :color
-    SETC :color
-    REPEAT 6 [ FD :size RT 60 ]
-END
+          ? $_POST['commands']
+          : '';
 
-; now lets draw some hexagons
-REPEAT 12 [ 
-    RT 15 hexagon 50 "0,127,0
-    RT 15 hexagon 30 "0,0,255
-]
+if (!$commands) {
+    $example = (isset($_GET['example'])) ? $_GET['example'] : 'complex';
+    $example = filter_var($example, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 
-; now move the pen so we're in position for the red hexagons
-; don't forget - commands don't have to be on separate lines - it's all just tokens in LogoLand.
-PENUP FORWARD 110 RT 90 FORWARD 16 LT 150 PENDOWN
-
-make "color 70
-REPEAT 12 [
-    REPEAT 18 [ hexagon 10 :color RT 30 ]
-    MAKE "color SUM :color 15 ; add 15 to the value of the previous colour to make it brighter
-    PENUP LT 220 FD 75 PENDOWN ; move the turtle to its next position
-]
-LOGO;
+    $filename = "examples/$example.logo";
+    if (file_exists($filename)) {
+        $commands = file_get_contents($filename);
+    }
+}
 
 $error = false;
 try {
@@ -92,7 +81,7 @@ try {
         
         h2 {
             font-size: 138.5%;
-            margin: 1em 4px 1em 0;
+            margin: 1.5em 4px 0.5em 0;
             font-family: Georgia, Palatino, "Palatino Linotype", Times, "Times New Roman", serif;
         }
          
@@ -109,12 +98,38 @@ try {
         
         #bd .turtle-input textarea {
             width: 95%;
-            height: 350px;
+            height: 328px;
         }
         
         #bd .turtle-input .submit {
             text-align: right;
             width: 95%;
+        }
+        
+        #bd .examples {
+            margin-bottom: 0.5em;
+        }
+        
+        #bd .examples * {
+            display: inline;
+        }
+        
+        #bd .examples ol:before {
+            content: "[";
+        }
+        
+        #bd .examples ol:after {
+            content: "]";
+        }
+        
+        #bd .examples li {
+            border-right: 2px solid #cfcfcf;
+            padding: 0 5px;
+        }
+        
+        #bd .examples li.last {
+            border: none;
+            padding-right: 0;
         }
         
         #bd .turtle-error,
@@ -150,7 +165,33 @@ try {
         </div>
         <div id="bd">
             <div class="turtle-input">
-                <h2>The Input:</h2>
+                <h2>
+                    The Input<? if ($example): ?> (currently using the "<?= $example?>" example)<? endif; ?>:
+                </h2>
+                
+                <div class="examples">
+                    <p>
+                        Write your own, or use an example:
+                    </p>
+                    <ol>
+                        <li>
+                            <a href="?example=square">square</a>
+                        </li>
+                        <li>
+                            <a href="?example=centered">centered</a>
+                        </li>
+                        <li>
+                            <a href="?example=variables">variables</a>
+                        </li>
+                        <li>
+                            <a href="?example=procedures">procedures</a>
+                        </li>
+                        <li class="last">
+                            <a href="?example=complex">complex</a>
+                        </li>
+                    </ol>
+                </div>
+                
                 <form action="" method="post">
                     <p>
                         <label for="commands">Turtle Commands:</label>

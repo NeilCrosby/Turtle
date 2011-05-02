@@ -1,0 +1,16 @@
+; This script covers PENUP, PENDOWN, LEFT, RIGHT, FORWARD, BACK and REPEAT
+; Phew, that's a lot in one little script.
+
+; first, lets move the turtle so that our square will end up being centered
+PENUP
+LEFT 90
+FORWARD 50
+RIGHT 90
+BACK 50
+PENDOWN
+
+; now lets draw that square (using a repeat this time)
+REPEAT 4 [
+    FORWARD 100
+    RIGHT 90
+]

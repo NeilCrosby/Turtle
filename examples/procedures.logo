@@ -1,0 +1,21 @@
+; a user generated procedure called "hexagon", that takes a size parameter
+TO hexagon :size
+    REPEAT 6 [ FORWARD :size RIGHT 60 ]
+END
+
+hexagon 50 ; draws a hexagon with sides length 50
+
+; now change the pen colour to green and draw another, smaller, hexagon
+SETC "0,255,0
+hexagon 10
+
+; now lets move the pen to the left, and draw a few concentric hexagons
+PENUP LEFT 90 FORWARD 150 RIGHT 90 PENDOWN
+
+MAKE "oursize 80
+MAKE "reduction -10
+REPEAT 8 [
+    hexagon :oursize
+    MAKE "oursize SUM :oursize :reduction
+    PENUP RIGHT 60 BK :reduction LEFT 60 PENDOWN
+]
