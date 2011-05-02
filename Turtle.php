@@ -167,12 +167,47 @@ class Turtle {
         }
         
         switch ($token) {
+            /* ************************************************************ *\
+             * First, all the commands that return something.               *
+            \* ************************************************************ */
+
+            // If the token denotes a list of commands, then we'll end up
+            // returning that list of commands
             case '[':
-                return $token;
+                $startingPoint = $tokenPointer + 1;
+                $openBrackets = 1;
+
+                // now start looking for the closing bracket to go with this opening one
+                while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
+                    $newToken = $this->_getNextToken($tokens, $tokenPointer, $variables, false);
+                    if ( '[' === $newToken ) {
+                        $openBrackets++;
+                    } else if ( ']' === $newToken ) {
+                        $openBrackets--;
+                    }
+
+                    if ( $openBrackets > 0 ) {
+                        continue;
+                    }
+                }
+
+                return $commands = array_slice(
+                    $tokens,
+                    $startingPoint,
+                    $tokenPointer - $startingPoint
+                );
                 break;
-            case ']':
-                return $token;
+            case 'SUM':
+                $item1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $item2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+                return $item1 + $item2;
                 break;
+
+            /* ************************************************************ *\
+             * Now, all the commands that don't return anything, but just   *
+             * do something.                                                *
+            \* ************************************************************ */
             case 'FD':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 $this->_movePointer($argument);
@@ -205,47 +240,18 @@ class Turtle {
                     $colors[0], $colors[1], $colors[2]
                 );
                 break;
-            case 'SUM':
-                $item1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $item2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-
-                return $item1 + $item2;
-                break;
             case 'REPEAT':
-                $argument      = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $squareBracket = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                if ('[' !== $squareBracket) {
-                    throw new Exception("REPEAT must be followed by a number, then an opening square bracket");
+                $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $list     = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                if ( !is_array($list)) {
+                    throw new Exception("REPEAT must be followed by a number, then a list");
                 }
                 
-                $startingPoint = $tokenPointer + 1;
-                $openBrackets = 1;
-
-                // now start looking for the closing bracket to go with this opening one
-                while ($tokenPointer < sizeof($tokens) && 0 !== $openBrackets) {
-                    $newToken = $this->_getNextToken($tokens, $tokenPointer, $variables, false);
-                    if ( '[' === $newToken ) {
-                        $openBrackets++;
-                    } else if ( ']' === $newToken ) {
-                        $openBrackets--;
-                    }
-                    
-                    if ( $openBrackets > 0 ) {
-                        continue;
-                    }
-
-                    for ($i = 0; $i < $argument; $i++) {
-                        $commands = array_slice(
-                            $tokens,
-                            $startingPoint,
-                            $tokenPointer - $startingPoint
-                        );
-
-                        // We're passing $variables by reference since the
-                        // code inside a REPEAT block is still within
-                        // the scope of the code surrounding it.
-                        $this->_parseTokens($commands, &$variables);
-                    }
+                for ( $i = 0; $i < $argument; $i++ ) {
+                    // We're passing $variables by reference since the
+                    // code inside a REPEAT block is still within
+                    // the scope of the code surrounding it.
+                    $this->_parseTokens($list, &$variables);                    
                 }
                 
                 break;
