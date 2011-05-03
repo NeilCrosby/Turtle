@@ -183,10 +183,6 @@ class Turtle {
                     } else if ( ']' === $newToken ) {
                         $openBrackets--;
                     }
-
-                    if ( $openBrackets > 0 ) {
-                        continue;
-                    }
                 }
 
                 return $commands = array_slice(
