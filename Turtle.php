@@ -14,6 +14,10 @@ class Turtle {
         'END'     => 'END',
         'SETCOLOR'=> 'SETC',
         'MAKE'    => 'MAKE',
+        'IF'      => 'IF',
+        'EQUAL?'  => 'EQUAL?',
+        'GREATER?'=> 'GREATER?',
+        'LESS'    => 'LESS?',
     );
 
     protected $_userDefinedCommands = array();
@@ -198,6 +202,63 @@ class Turtle {
                 return $item1 + $item2;
                 break;
 
+            case 'EQUAL?':
+                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+                if ( !is_numeric($val1) ) {
+                    throw new Exception("The first token following an 'EQUAL?' must resolve to a number");
+                }
+
+                if ( !is_numeric($val2) ) {
+                    throw new Exception("The second token following an 'EQUAL?' must resolve to a number");
+                }
+
+                if ( $val1 === $val2 ) {
+                    return true;
+                }
+
+                return false;
+                break;
+
+            case 'GREATER?':
+                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+                if ( !is_numeric($val1) ) {
+                    throw new Exception("The first token following an 'EQUAL?' must resolve to a number");
+                }
+
+                if ( !is_numeric($val2) ) {
+                    throw new Exception("The second token following an 'EQUAL?' must resolve to a number");
+                }
+
+                if ( $val1 > $val2 ) {
+                    return true;
+                }
+
+                return false;
+                break;
+
+            case 'LESS?':
+                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+                if ( !is_numeric($val1) ) {
+                    throw new Exception("The first token following an 'EQUAL?' must resolve to a number");
+                }
+
+                if ( !is_numeric($val2) ) {
+                    throw new Exception("The second token following an 'EQUAL?' must resolve to a number");
+                }
+
+                if ( $val1 < $val2 ) {
+                    return true;
+                }
+
+                return false;
+                break;
+
             /* ************************************************************ *\
              * Now, all the commands that don't return anything, but just   *
              * do something.                                                *
@@ -295,6 +356,26 @@ class Turtle {
             
                 break;
                 
+            case 'IF':
+                // IF predicate [list]
+                /*
+                EQUAL? VAL1 VAL2 [LIST]   ; do list if val1 & va2 are equal
+                GREATER? VAL1 VAL2 [LIST] ; do list if val1 > val2
+                LESS? VAL1 VAL2 [LIST]    ; do list if val1 < val2
+                */
+                
+                $predicateResult = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                
+                if ( true !== $predicateResult && false !== $predicateResult ) {
+                    throw new Exception("IF statements are required to be immediately followed by a predicate");
+                }
+                
+                $list = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                if ($predicateResult) {
+                    $this->_parseTokens($list, &$variables);
+                }
+                break;
+                
             case 'MAKE':
                 $namedVariable = $this->_getNextToken($tokens, $tokenPointer, $variables);
 
@@ -325,8 +406,8 @@ class Turtle {
                     throw new Exception("$token is undefined.");
                 }
         }
-        
-        return $tokens[$tokenPointer];
+
+        return null;
     }
     
     protected function _getNewPosition($argument) {

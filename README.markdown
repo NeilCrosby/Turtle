@@ -89,7 +89,7 @@ The following will create a simple hexagon twelve times, with a 30 degree rotati
         RT 30
     ]
     
-### TO _procedure-name_ _commands_ END
+### TO _procedure-name_ _list_ END
 
 Creates a procedure, which can be called by name from later places within your script.
 
@@ -143,6 +143,48 @@ Sums two values together
     MAKE "y 30
     MAKE "z SUM :x :y ; z becomes 90
     MAKE "z SUM 60 -40 ; z becomes 20
+    
+### IF _predicate_ _list_
+
+Available predicates are `EQUAL?`, `LESS?` and `GREATER`, followed by two tokens that evaluate to numbers.
+
+Here are some simple examples:
+
+    IF EQUAL? 10 10 [ FD 10 ] ; pointer will move forward 10
+    IF EQUAL? 8 10 [ FD 10]   ; nothing will happen
+    IF LESS? 10 10 [ FD 10]   ; nothing will happen
+    IF LESS? 10 5 [ FD 10]    ; nothing will happen
+    IF LESS? 5 10 [ FD 10]    ; pointer will move forward 10
+    IF GREATER? 10 10 [ FD 10]   ; nothing will happen
+    IF GREATER? 5 10 [ FD 10]    ; nothing will happen
+    IF GREATER? 10 5 [ FD 10]    ; pointer will move forward 10
+
+Of course, that's not very exciting. How about some variables?
+
+    MAKE "length 0
+
+    REPEAT 50 [
+        MAKE "length SUM :length 5
+        IF GREATER? :length 20 [ MAKE "length 5 ]
+        REPEAT 5 [ FD :length RT 30 ]
+    ]
+
+Here, we create a variable called 'length', and within a loop add 5 to it. We then check whether the length has become greater than 20, and if it has we reset it.
+
+If we wanted, we could even use a command like `SUM` within a predicate:
+
+    MAKE "length 0
+    MAKE "angle 0
+
+    PU RT 45 BK 190 LT 45 PD
+
+    REPEAT 50 [
+        MAKE "length SUM :length 5
+        MAKE "angle SUM :angle 2
+        IF GREATER? SUM :length :angle 90 [ MAKE "length 2 ]
+        FD :length RT :angle
+    ]
+
 
 ## Tests
 

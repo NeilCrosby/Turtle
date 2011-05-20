@@ -7,8 +7,8 @@ removeMagicQuotes($_GET);
 $turtle = new Turtle($_GET['commands'], 350, 350);
 
 $filename = str_replace(
-    array(' ', ':', '"'), 
-    array('-', 'c', 'q'), 
+    array(' ', ':', '"', '?'), 
+    array('-', 'c', 'q', 'p'), 
     $_GET['commands']
 );
 

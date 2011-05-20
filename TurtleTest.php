@@ -26,8 +26,8 @@ class TurtleTest extends PHPUnit_Framework_TestCase
         $expectedFilename = ( '' === $expected )
                           ? 'empty-output'
                           : str_replace(
-                              array(' ', ':', '"'), 
-                              array('-', 'c', 'q'), 
+                              array(' ', ':', '"', '?'), 
+                              array('-', 'c', 'q', 'p'), 
                               $expected
                             );
         $expectedFilename = "test-images/$expectedFilename.png";
@@ -276,6 +276,18 @@ LOGO
                 , 'REPEAT 4 [ REPEAT 3 [ FD 20 RT 30 ] ]'
             ),
             array(
+                <<<LOGO
+MAKE "length 0
+
+REPEAT 50 [
+    MAKE "length SUM :length 5
+    IF GREATER? :length 25 [ MAKE "length 5 ]
+    REPEAT 5 [ FD :length RT 30 ]
+]
+LOGO
+                , 'MAKE "LENGTH 0 REPEAT 50 [ MAKE "LENGTH SUM :LENGTH 5 IF GREATER? :LENGTH 25 [ MAKE "LENGTH 5 ] REPEAT 5 [ FD :LENGTH RT 30 ] ]'
+            ),
+            array(
                 'REPEAT 4 [REPEAT 3 [FD 20 RT 30]]',
                 'REPEAT 4 [ REPEAT 3 [ FD 20 RT 30 ] ]'
                 
@@ -316,6 +328,12 @@ LOGO
             array("FISHCAKE forward 27"),
             array("TO FORWARD RT 90 END"),
             array("TO FD RT 90 END"),
+            array("IF FD 10"),
+            array("IF LESS? FD 10"),
+            array("IF LESS? FD 10 20"),
+            array("IF LESS? 20 FD 10"),
+            array("IF LESS? 20 10"),
+            array("IF LESS? FD 10"),
         );
     }
 }
