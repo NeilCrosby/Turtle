@@ -1,10 +1,12 @@
 # Simple Turtle Graphics Parser (written in PHP)
 
-This parser was written as part of a competition at work.  The task was to:
+This parser was written as part of a competition at work by [Neil Crosby](http://neilcrosby.com).  The task was to:
 
 > Write a simple interpreter for a simple version of the Logo programming language.
 
 This is my attempt at that.
+
+The source of truth for this project can be found at http://github.com/NeilCrosby/Turtle
 
 An installed version of the code can be found at http://projects.thecodetrain.co.uk/turtle/
 
