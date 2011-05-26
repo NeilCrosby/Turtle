@@ -68,17 +68,13 @@ class Turtle {
         $lines = explode("\n", strtoupper($input));
         foreach ($lines as $line) {
             // first, remove anything after semi colons on any line
-            $semiColonPosition = strpos($line, ';');
-            if ( false !== $semiColonPosition) {
-                $line = substr($line, 0, $semiColonPosition);
-                $line = trim($line);
-                
-                // if the line then becomes empty, we'll ignore it completely
-                if (!$line) {
-                    continue;
-                }
+            $line = preg_replace('/;.*$/', '', $line);
+ 
+            // if this line is now empty then ignore it
+            if (!$line) {
+                continue;
             }
-            
+
             // then, force spaces around any square brackets
             $line = str_replace('[', ' [ ', $line);
             $line = str_replace(']', ' ] ', $line);
@@ -114,13 +110,12 @@ class Turtle {
     /**
      * Callback used by array_filter call in _getTokens to determine whether
      * a token should be removed from the list of tokens or not.
+     * 
+     * @return bool true if anything other than an empty string is given.
+     *              ie zero will return true.
      **/
     protected function _reductionCallback($input) {
-        if ( 0 === $input || '0' === $input) {
-            return true;
-        }
-        
-        return (bool)$input;
+        return !( '' === $input );
     } 
 
     public function _parseTokens($tokens, $passedInVariables=array(), $expectedVariables=array()) {
