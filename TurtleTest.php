@@ -111,6 +111,7 @@ class TurtleTest extends PHPUnit_Framework_TestCase
             array("PENDOWN", 'PD'),
             array('pu', 'PU'),
             array('pd', 'PD'),
+            array('REPEAT 20 [ FD 10 ]', 'REPEAT 20 [ FD 10 ]'),
         );
     }
     
@@ -334,6 +335,8 @@ LOGO
             array("IF LESS? 20 FD 10"),
             array("IF LESS? 20 10"),
             array("IF LESS? FD 10"),
+            array("REPEAT FD 20"),
+            array("REPEAT 20 FD 10"),
         );
     }
 }

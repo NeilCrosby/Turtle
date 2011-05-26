@@ -258,6 +258,11 @@ class Turtle {
             case 'REPEAT':
                 $argument = $this->_getNextToken($tokens, $tokenPointer, $variables);
                 $list     = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+                if ( !is_numeric($argument) ) {
+                    throw new Exception("The first token following 'REPEAT' must resolve to a number");
+                }
+
                 if ( !is_array($list)) {
                     throw new Exception("REPEAT must be followed by a number, then a list");
                 }
