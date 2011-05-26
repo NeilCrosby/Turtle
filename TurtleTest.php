@@ -113,6 +113,10 @@ class TurtleTest extends PHPUnit_Framework_TestCase
             array('pd', 'PD'),
             array('REPEAT 20 [ FD 10 ]', 'REPEAT 20 [ FD 10 ]'),
             array('MAKE "blah SUM 5 10 FD :blah', 'MAKE "BLAH SUM 5 10 FD :BLAH'),
+            // take angle past 360 and then back round before 0 (starts at 270)
+            array('RT 100 LT 360 LT 50 FD 50', 'RT 100 LT 360 LT 50 FD 50'),
+            array("FD PRODUCT 10 2", "FD PRODUCT 10 2"),
+            array("IF EQUAL? 10 SUM 5 5 [ FD 20 ]", "IF EQUAL? 10 SUM 5 5 [ FD 20 ]"),
         );
     }
     
@@ -337,9 +341,13 @@ LOGO
             array("IF LESS? 20 10"),
             array("IF LESS? FD 10"),
             array("REPEAT FD 20"),
+            array("REPEAT FD 20 RT 90"),
             array("REPEAT 20 FD 10"),
             array("SUM 5 FD 20"),
             array("PRODUCT 5 FD 20"),
+            array("FD :bob"),
+            array("TO bob [ RT 90"),
+            array("MAKE FD 60"),
         );
     }
 }
