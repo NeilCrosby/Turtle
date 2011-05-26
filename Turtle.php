@@ -203,60 +203,20 @@ class Turtle {
                 break;
 
             case 'EQUAL?':
-                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val = $this->_compare('EQUAL?', $tokens, $tokenPointer, $variables);
+                return ( 0 === $val );
 
-                if ( !is_numeric($val1) ) {
-                    throw new Exception("The first token following an 'EQUAL?' must resolve to a number");
-                }
-
-                if ( !is_numeric($val2) ) {
-                    throw new Exception("The second token following an 'EQUAL?' must resolve to a number");
-                }
-
-                if ( $val1 === $val2 ) {
-                    return true;
-                }
-
-                return false;
                 break;
 
             case 'GREATER?':
-                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val = $this->_compare('EQUAL?', $tokens, $tokenPointer, $variables);
+                return ( $val > 0 );
 
-                if ( !is_numeric($val1) ) {
-                    throw new Exception("The first token following an 'EQUAL?' must resolve to a number");
-                }
-
-                if ( !is_numeric($val2) ) {
-                    throw new Exception("The second token following an 'EQUAL?' must resolve to a number");
-                }
-
-                if ( $val1 > $val2 ) {
-                    return true;
-                }
-
-                return false;
                 break;
-
             case 'LESS?':
-                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-
-                if ( !is_numeric($val1) ) {
-                    throw new Exception("The first token following an 'EQUAL?' must resolve to a number");
-                }
-
-                if ( !is_numeric($val2) ) {
-                    throw new Exception("The second token following an 'EQUAL?' must resolve to a number");
-                }
-
-                if ( $val1 < $val2 ) {
-                    return true;
-                }
-
-                return false;
+                $val = $this->_compare('EQUAL?', $tokens, $tokenPointer, $variables);
+                return ( $val < 0 );
+                
                 break;
 
             /* ************************************************************ *\
@@ -456,6 +416,21 @@ class Turtle {
 
         $this->_currentX = $newPosition['x'];
         $this->_currentY = $newPosition['y'];
+    }
+    
+    protected function _compare($comparison, &$tokens, &$tokenPointer, &$variables) {
+        $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+        $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+        if ( !is_numeric($val1) ) {
+            throw new Exception("The first token following '$comparison' must resolve to a number");
+        }
+
+        if ( !is_numeric($val2) ) {
+            throw new Exception("The second token following '$comparison' must resolve to a number");
+        }
+        
+        return $val1 - $val2;
     }
 }
 ?>
