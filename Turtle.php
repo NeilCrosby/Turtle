@@ -18,6 +18,8 @@ class Turtle {
         'EQUAL?'  => 'EQUAL?',
         'GREATER?'=> 'GREATER?',
         'LESS'    => 'LESS?',
+        'SUM'     => 'SUM',
+        'PRODUCT' => 'PRODUCT',
     );
 
     protected $_userDefinedCommands = array();
@@ -196,10 +198,25 @@ class Turtle {
                 );
                 break;
             case 'SUM':
-                $item1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                $item2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                
+                if ( !is_numeric($val1) || !is_numeric($val2) ) {
+                    throw new Exception("The two tokens following 'SUM' must resolve to numbers");
+                }
 
-                return $item1 + $item2;
+                return $val1 + $val2;
+                break;
+
+            case 'PRODUCT':
+                $val1 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                $val2 = $this->_getNextToken($tokens, $tokenPointer, $variables);
+
+                if ( !is_numeric($val1) || !is_numeric($val2) ) {
+                    throw new Exception("The two tokens following 'SUM' must resolve to numbers");
+                }
+
+                return $val1 * $val2;
                 break;
 
             case 'EQUAL?':
