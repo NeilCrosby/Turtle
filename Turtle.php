@@ -378,23 +378,20 @@ class Turtle {
                 $variables[$namedVariable] = $value;
                 break;
             default:
-                if (array_key_exists($token, $this->_userDefinedCommands)) {
-                    $variablesToPass = array();
-                    foreach ($this->_userDefinedCommands[$token]['expectedVariables'] as $expectedVariable) {
-                        $variablesToPass[$expectedVariable] = $this->_getNextToken($tokens, $tokenPointer, $variables);
-                    }
-                    
-                    $this->_parseTokens(
-                        $this->_userDefinedCommands[$token]['commands'],
-                        $variablesToPass,
-                        $this->_userDefinedCommands[$token]['expectedVariables']
-                    );
-                } else if ( isset($tokens[$tokenPointer - 1]) && 'TO' === $tokens[$tokenPointer - 1]) {
-                    // we're trying to define this procedure
-                    return $token;
-                } else {
+                if (!array_key_exists($token, $this->_userDefinedCommands)) {
                     throw new Exception("$token is undefined.");
                 }
+                
+                $variablesToPass = array();
+                foreach ($this->_userDefinedCommands[$token]['expectedVariables'] as $expectedVariable) {
+                    $variablesToPass[$expectedVariable] = $this->_getNextToken($tokens, $tokenPointer, $variables);
+                }
+                
+                $this->_parseTokens(
+                    $this->_userDefinedCommands[$token]['commands'],
+                    $variablesToPass,
+                    $this->_userDefinedCommands[$token]['expectedVariables']
+                );
         }
 
         return null;
