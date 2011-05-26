@@ -275,6 +275,14 @@ class Turtle {
                 }
                 
                 break;
+                
+            /*
+             * 'TO' is used to create user written procedures.
+             * 
+             * TO hexagon :size
+             *      REPEAT 6 [ FORWARD :size RIGHT 60 ]
+             * END
+             */
             case 'TO':
                 $functionName = $this->_getNextToken($tokens, $tokenPointer, $variables, false);
                 if (in_array($functionName, $this->_commands)) {
