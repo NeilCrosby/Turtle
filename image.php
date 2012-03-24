@@ -17,7 +17,7 @@ $filename = str_replace(
 if ( strlen($filename) > $maxFilenameLength ) {
 	$filenameMd5 = md5($filename);
 
-	$filename = substr( $filename, $maxFilenameLength ) . '_' . $filenameMd5;
+	$filename = substr( $filename, 0, $maxFilenameLength ) . '_' . $filenameMd5;
 }
 
 header ("Content-Disposition: Attachment;filename=$filename.png"); 
